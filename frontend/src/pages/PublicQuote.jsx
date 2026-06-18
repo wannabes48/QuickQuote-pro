@@ -37,22 +37,23 @@ export default function PublicQuote() {
     };
 
     const handleAccept = async () => {
-        if (sigCanvas.current.isEmpty()) {
-            alert('Please provide your signature to accept the quote.');
-            return;
-        }
-
-        setSubmitting(true);
-        const signatureData = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
-
         try {
+            if (sigCanvas.current.isEmpty()) {
+                alert('Please provide your signature to accept the quote.');
+                return;
+            }
+
+            setSubmitting(true);
+            const signatureData = sigCanvas.current.getCanvas().toDataURL('image/png');
+
             await axios.post(`http://localhost:8000/api/quotes/public/${token}/`, {
                 signature_data: signatureData
             });
             setAccepted(true);
-            setQuote({ ...quote, status: 'Accepted', signature_data: signatureData });
+            setQuote(prev => ({ ...prev, status: 'Accepted', signature_data: signatureData }));
         } catch (err) {
-            alert('Failed to submit signature. Please try again.');
+            console.error('Accept error:', err);
+            alert('Failed to submit signature: ' + (err.response?.data?.error || err.message || 'Unknown error'));
         } finally {
             setSubmitting(false);
         }

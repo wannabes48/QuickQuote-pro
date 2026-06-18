@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
-import { FileText, Plus, Download, Edit2, Trash2 } from 'lucide-react';
+import { FileText, Plus, Download, Edit2, Trash2, Link as LinkIcon, FilePlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Quotes() {
@@ -33,6 +33,15 @@ export default function Quotes() {
             link.click();
         } catch (error) {
             console.error("Failed to download PDF", error);
+        }
+    };
+
+    const convertToInvoice = async (id) => {
+        try {
+            await api.post(`quotes/${id}/convert_to_invoice/`);
+            alert("Quote successfully converted to invoice!");
+        } catch (error) {
+            alert("Failed to convert: " + (error.response?.data?.error || error.message));
         }
     };
 
@@ -80,7 +89,10 @@ export default function Quotes() {
                                 <td className="px-6 py-4 text-gray-500">{new Date(quote.created_at).toLocaleDateString()}</td>
                                 <td className="px-6 py-4 text-right">
                                     <button onClick={() => downloadPDF(quote.id, quote.quote_number)} className="text-gray-400 hover:text-primary mr-4 transition-colors" title="Download PDF"><Download className="w-4 h-4" /></button>
-                                    <button className="text-gray-400 hover:text-primary mr-4 transition-colors"><Edit2 className="w-4 h-4" /></button>
+                                    <button onClick={() => { navigator.clipboard.writeText(window.location.origin + '/quote/' + quote.public_token); alert('Public Link copied to clipboard!'); }} className="text-gray-400 hover:text-primary mr-4 transition-colors" title="Copy Public Link"><LinkIcon className="w-4 h-4" /></button>
+                                    {quote.status === 'Accepted' && (
+                                        <button onClick={() => convertToInvoice(quote.id)} className="text-gray-400 hover:text-green-500 mr-4 transition-colors" title="Convert to Invoice"><FilePlus className="w-4 h-4" /></button>
+                                    )}
                                     <button className="text-gray-400 hover:text-danger transition-colors"><Trash2 className="w-4 h-4" /></button>
                                 </td>
                             </tr>

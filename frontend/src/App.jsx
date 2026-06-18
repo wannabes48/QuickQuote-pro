@@ -10,6 +10,7 @@ import Customers from './pages/Customers';
 import Quotes from './pages/Quotes';
 import QuoteBuilder from './pages/QuoteBuilder';
 import PublicQuote from './pages/PublicQuote';
+import Invoices from './pages/Invoices';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -34,6 +35,7 @@ function App() {
             <Route path="/customers" element={<Customers />} />
             <Route path="/quotes" element={<Quotes />} />
             <Route path="/quotes/new" element={<QuoteBuilder />} />
+            <Route path="/invoices" element={<Invoices />} />
             <Route path="/settings" element={<div>Settings Page</div>} />
           </Route>
         </Routes>

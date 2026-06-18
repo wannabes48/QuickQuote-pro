@@ -9,11 +9,15 @@ class QuoteItemSerializer(serializers.ModelSerializer):
 
 class QuoteSerializer(serializers.ModelSerializer):
     items = QuoteItemSerializer(many=True)
+    customer_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Quote
         fields = ['id', 'quote_number', 'customer', 'customer_details', 'status', 'currency', 'subtotal', 'vat', 'total', 'notes', 'public_token', 'signature_data', 'signed_at', 'created_at', 'items']
         read_only_fields = ['subtotal', 'vat', 'total', 'public_token', 'signature_data', 'signed_at', 'created_at']
+
+    def get_customer_details(self, obj):
+        return {"name": obj.customer.name, "phone": obj.customer.phone, "email": obj.customer.email}
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
