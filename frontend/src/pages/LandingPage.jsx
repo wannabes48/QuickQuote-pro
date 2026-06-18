@@ -1,10 +1,11 @@
 import React from 'react';
-import { FileCheck } from 'lucide-react';
+import { AppLogo, AppLogoDarkText } from '@/components/ui/logo';
 import { Link } from 'react-router-dom';
 import { Pricing2 } from '@/components/ui/pricing-cards';
 import FeatureCarousel from '@/components/ui/feature-carousel';
 import { MeshGradient } from "@paper-design/shaders-react";
 import Footer from '@/components/ui/footer';
+import GradientCardDemo from '@/components/ui/gradient-card-demo';
 
 function LandingPage() {
   return (
@@ -29,10 +30,10 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-                <FileCheck className="h-8 w-8 text-white" />
+              <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                <AppLogo className="h-8 w-8" />
               </div>
-              <span className="ml-3 text-2xl font-bold text-white tracking-tight drop-shadow-md">QuickQuote Pro</span>
+              <AppLogoDarkText className="text-2xl ml-3 drop-shadow-md" />
             </div>
             <div className="flex items-center space-x-6">
               <Link to="/login" className="text-white hover:text-blue-200 font-medium transition-colors drop-shadow-sm">Log in</Link>
@@ -102,6 +103,11 @@ function LandingPage() {
         {/* Feature Carousel */}
         <div className="relative z-20 mt-12 mb-12">
           <FeatureCarousel />
+        </div>
+
+        {/* Gradient Cards Demo Section */}
+        <div className="relative z-20 mb-12 bg-zinc-950/40">
+          <GradientCardDemo />
         </div>
 
         {/* Pricing Section stays at the bottom, overlapping the fixed background with its own dark background */}

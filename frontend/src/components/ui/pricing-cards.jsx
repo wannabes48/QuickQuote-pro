@@ -192,33 +192,38 @@ const Pricing2 = ({
           <h2 className="text-pretty text-4xl font-bold lg:text-6xl">{heading}</h2>
           <p className="text-zinc-400 lg:text-xl">{description}</p>
 
-          <div className="flex items-center gap-3 text-lg z-10">
-            Monthly
-            <Switch checked={isYearly} onCheckedChange={() => setIsYearly(!isYearly)} />
-            Yearly
+          <div className="flex items-center gap-3 text-lg z-10 font-medium">
+            <span className={!isYearly ? "text-white" : "text-zinc-400"}>Monthly</span>
+            <Switch 
+              checked={isYearly} 
+              onCheckedChange={setIsYearly} 
+              className="data-[state=unchecked]:bg-zinc-600 data-[state=checked]:bg-blue-600"
+            />
+            <span className={isYearly ? "text-white" : "text-zinc-400"}>Yearly</span>
           </div>
 
-          <div className="mt-2 flex flex-col items-stretch gap-6 md:flex-row z-10">
+          <div className="mt-6 flex flex-col items-stretch gap-6 md:flex-row z-10">
             {plans.map((plan, i) => (
               <Card
                 key={plan.id}
                 className={`card-animate flex w-80 flex-col justify-between text-left border-zinc-800 bg-zinc-900/70 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/60 ${
-                  i === 1 ? "md:translate-y-2" : ""
+                  i === 1 ? "md:translate-y-2 ring-1 ring-blue-500/50 shadow-2xl shadow-blue-900/20" : ""
                 }`}
                 style={{ animationDelay: `${0.25 + i * 0.08}s` }}
               >
                 <CardHeader>
                   <CardTitle>
-                    <p className="text-zinc-50">{plan.name}</p>
+                    <p className="text-zinc-50 text-xl">{plan.name}</p>
                   </CardTitle>
-                  <p className="text-sm text-zinc-400">{plan.description}</p>
-                  <span className="text-4xl font-bold text-white">
+                  <p className="text-sm text-zinc-400 min-h-[40px]">{plan.description}</p>
+                  <div className="mt-4 flex items-baseline text-4xl font-bold text-white">
                     {isYearly ? plan.yearlyPrice : plan.monthlyPrice}
-                  </span>
-                  <p className="text-zinc-500">
-                    Billed{" "}
-                    {isYearly ? plan.yearlyPrice : plan.monthlyPrice}{" "}
-                    annually
+                    <span className="ml-1 text-sm font-medium text-zinc-500">
+                      /{isYearly ? "yr" : "mo"}
+                    </span>
+                  </div>
+                  <p className="text-zinc-500 text-sm mt-1">
+                    Billed {isYearly ? plan.yearlyPrice : plan.monthlyPrice} {isYearly ? "annually" : "monthly"}
                   </p>
                 </CardHeader>
 

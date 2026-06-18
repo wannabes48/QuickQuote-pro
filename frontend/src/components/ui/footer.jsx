@@ -1,6 +1,7 @@
 import React from 'react';
-import { Mail, MapPin, Phone, FileCheck } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AppLogo, AppLogoDarkText } from '@/components/ui/logo';
 
 const FacebookIcon = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const TwitterIcon = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>;
@@ -40,7 +41,7 @@ const data = {
     name: 'QuickQuote Pro',
     description:
       'Generate branded quotations, send them securely via email or SMS, and track customer responses from one simple dashboard.',
-    logo: <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm inline-flex items-center justify-center"><FileCheck className="h-6 w-6 text-white" /></div>,
+    logo: <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm inline-flex items-center justify-center"><AppLogo className="h-6 w-6" /></div>,
   },
 };
 
@@ -86,9 +87,7 @@ export default function Footer() {
           <div>
             <div className="flex justify-center gap-3 sm:justify-start items-center">
               {data.company.logo}
-              <span className="text-2xl font-bold tracking-tight">
-                {data.company.name}
-              </span>
+              <AppLogoDarkText className="text-2xl" />
             </div>
 
             <p className="mt-6 max-w-md text-center leading-relaxed sm:max-w-xs sm:text-left text-white/60">

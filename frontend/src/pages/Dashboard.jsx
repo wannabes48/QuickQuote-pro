@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
     const { user } = useContext(AuthContext);
-    const [stats, setStats] = useState({ quotesCount: 0, customersCount: 0, totalRevenue: 0 });
+    const [stats, setStats] = useState({ quotesCount: 0, customersCount: 0, revenueByCurrency: {} });
     const [recentQuotes, setRecentQuotes] = useState([]);
 
     useEffect(() => {
@@ -20,14 +20,18 @@ export default function Dashboard() {
                 const quotes = quotesRes.data;
                 const customers = customersRes.data;
                 
-                const revenue = quotes
+                const revenueByCurrency = quotes
                     .filter(q => q.status === 'Accepted')
-                    .reduce((sum, q) => sum + parseFloat(q.total), 0);
+                    .reduce((acc, q) => {
+                        const currency = q.currency || 'KSh';
+                        acc[currency] = (acc[currency] || 0) + parseFloat(q.total || 0);
+                        return acc;
+                    }, {});
                 
                 setStats({
                     quotesCount: quotes.length,
                     customersCount: customers.length,
-                    totalRevenue: revenue
+                    revenueByCurrency: revenueByCurrency
                 });
                 
                 // Sort by ID descending (newest first)
@@ -80,7 +84,17 @@ export default function Dashboard() {
                     </div>
                     <div className="ml-5">
                         <p className="text-sm font-medium text-gray-500 mb-1">Accepted Revenue</p>
-                        <h3 className="text-2xl font-bold text-gray-dark">KSh {stats.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</h3>
+                        <h3 className="text-2xl font-bold text-gray-dark">
+                            {Object.entries(stats.revenueByCurrency).length > 0 ? (
+                                Object.entries(stats.revenueByCurrency).map(([currency, amount], index) => (
+                                    <div key={currency} className={index > 0 ? "text-lg mt-1" : ""}>
+                                        {currency} {amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                                    </div>
+                                ))
+                            ) : (
+                                "0.00"
+                            )}
+                        </h3>
                     </div>
                 </div>
             </div>

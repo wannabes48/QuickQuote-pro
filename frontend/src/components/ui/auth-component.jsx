@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo, useCallback, createContext, Children, useContext } from "react";
 import { cva } from "class-variance-authority";
 import { ArrowRight, User, Gem, Lock, Eye, EyeOff, ArrowLeft, X, AlertCircle, PartyPopper, Loader } from "lucide-react";
+import { AppLogo, AppLogoDarkText } from '@/components/ui/logo';
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Link, useNavigate } from "react-router-dom";
@@ -309,10 +310,12 @@ export const AuthComponent = ({ mode = 'register' }) => {
             <span className="text-sm font-bold text-white">Back to Home</span>
         </Link>
 
-        <div className={cn( "fixed top-4 left-4 md:left-8 z-20 flex items-center gap-2" )}>
-            <DefaultLogo />
-            <h1 className="text-xl font-bold text-white">QuickQuote Pro</h1>
-        </div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-md">
+                <AppLogo className="h-6 w-6" />
+              </div>
+              <AppLogoDarkText className="text-xl" />
+            </div>
 
         <div className={cn("flex w-full flex-1 h-full items-center justify-center", "relative overflow-hidden")}>
             <div className="absolute inset-0 z-0"><GradientBackground /></div>

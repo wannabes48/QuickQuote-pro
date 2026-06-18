@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import SignatureCanvas from 'react-signature-canvas';
-import { FileCheck, Download, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Download, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { AppLogo, AppLogoText } from '@/components/ui/logo';
 
 export default function PublicQuote() {
     const { token } = useParams();
@@ -73,10 +74,10 @@ export default function PublicQuote() {
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center p-3 bg-white rounded-2xl shadow-sm mb-4">
-                        <FileCheck className="h-10 w-10 text-primary" />
+                    <div className="flex items-center justify-center space-x-3 mb-8 sm:mb-4">
+                        <AppLogo className="h-10 w-10" />
+                        <AppLogoText className="text-2xl" showTagline />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Quotation Review</h1>
                     <p className="mt-2 text-gray-500">Review your quotation and sign below to proceed.</p>
                 </div>
 
