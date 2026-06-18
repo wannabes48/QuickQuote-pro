@@ -12,8 +12,8 @@ class QuoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quote
-        fields = '__all__'
-        read_only_fields = ('subtotal', 'vat', 'total', 'created_at')
+        fields = ['id', 'quote_number', 'customer', 'customer_details', 'status', 'currency', 'subtotal', 'vat', 'total', 'notes', 'public_token', 'signature_data', 'signed_at', 'created_at', 'items']
+        read_only_fields = ['subtotal', 'vat', 'total', 'public_token', 'signature_data', 'signed_at', 'created_at']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')

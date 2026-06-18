@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
 import Quotes from './pages/Quotes';
 import QuoteBuilder from './pages/QuoteBuilder';
+import PublicQuote from './pages/PublicQuote';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/quote/:token" element={<PublicQuote />} />
           
           {/* Authenticated Routes with Layout */}
           <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
