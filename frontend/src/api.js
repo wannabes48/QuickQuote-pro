@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const isProd = import.meta.env.PROD;
+
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api/',
+    baseURL: import.meta.env.VITE_API_BASE_URL || (isProd ? 'https://quickquote-pro.onrender.com/api/' : 'http://localhost:8000/api/'),
 });
 
 api.interceptors.request.use((config) => {
