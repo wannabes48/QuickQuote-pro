@@ -139,7 +139,7 @@ else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
         "https://your-frontend-domain.vercel.app",
-        # We will add the actual vercel URL here when you provide it
+        "https://quick-quote-pro-self.vercel.app",
     ]
     # Optionally allow the frontend origin explicitly from environment
     if os.environ.get('FRONTEND_URL'):

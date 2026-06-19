@@ -20,8 +20,8 @@ export default function PublicQuote() {
         // Fetch quote data using public token
         const fetchQuote = async () => {
             try {
-                // Not using the authenticated 'api' instance
-                const res = await axios.get(`http://localhost:8000/api/quotes/public/${token}/`);
+                const baseURL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://quickquote-pro.onrender.com/api/' : 'http://localhost:8000/api/');
+                const res = await axios.get(`${baseURL}quotes/public/${token}/`);
                 setQuote(res.data);
                 if (res.data.status === 'Accepted') {
                     setAccepted(true);
@@ -48,8 +48,9 @@ export default function PublicQuote() {
 
             setSubmitting(true);
             const signatureData = sigCanvas.current.getCanvas().toDataURL('image/png');
+            const baseURL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://quickquote-pro.onrender.com/api/' : 'http://localhost:8000/api/');
 
-            await axios.post(`http://localhost:8000/api/quotes/public/${token}/`, {
+            await axios.post(`${baseURL}quotes/public/${token}/`, {
                 signature_data: signatureData
             });
             setAccepted(true);
