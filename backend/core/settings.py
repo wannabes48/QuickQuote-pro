@@ -13,9 +13,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -28,6 +32,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-u7-87ls=g48-fj#16d)1f
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS.extend(['.onrender.com', '.vercel.app', '*']) # Fallback to prevent 400 errors if env var is missed
 
 
 # Application definition
@@ -140,6 +145,8 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "https://your-frontend-domain.vercel.app",
         "https://quick-quote-pro-self.vercel.app",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
     ]
     # Optionally allow the frontend origin explicitly from environment
     if os.environ.get('FRONTEND_URL'):
