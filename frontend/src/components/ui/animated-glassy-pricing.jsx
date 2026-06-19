@@ -47,7 +47,7 @@ export const PricingCard = ({
         <p className="text-[16px] text-foreground/70 mt-1 font-sans">{description}</p>
       </div>
       <div className="my-6 flex items-baseline gap-2">
-        <span className="text-[48px] font-extralight text-foreground font-display">${price}</span>
+        <span className="text-[48px] font-extralight text-foreground font-display">KSh {price}</span>
         <span className="text-[14px] text-foreground/70 font-sans">/mo</span>
       </div>
       <div className="card-divider w-full mb-5 h-px bg-[linear-gradient(90deg,transparent,rgba(0,0,0,0.1)_50%,transparent)] dark:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.09)_20%,rgba(255,255,255,0.22)_50%,rgba(255,255,255,0.09)_80%,transparent)]"></div>

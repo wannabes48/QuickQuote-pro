@@ -2,66 +2,66 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppLogo, AppLogoDarkText } from '@/components/ui/logo';
 import { ModernPricingPage } from "@/components/ui/animated-glassy-pricing";
+import { MeshGradient } from "@paper-design/shaders-react";
 
 const myPricingPlans = [
   { 
     planName: 'Starter', 
-    description: 'Perfect for new freelancers to win their first clients.', 
-    price: '0', 
-    features: ['Up to 5 Quotes/mo', '1 User', 'Basic Templates', 'Standard Support'], 
-    buttonText: 'Start for Free', 
+    description: 'Perfect for solopreneurs getting started.', 
+    price: '1,000', 
+    features: ['Up to 50 quotes/month', 'PDF Generation', 'Email & SMS sending'], 
+    buttonText: 'Start Free Trial', 
     buttonVariant: 'secondary'
   },
   { 
-    planName: 'Pro', 
-    description: 'Everything you need to quote like a professional.', 
-    price: '15', 
-    features: ['Unlimited Quotes', 'Custom Branding', 'Online Payments', 'Priority Support'], 
-    buttonText: 'Get Pro', 
+    planName: 'Professional', 
+    description: 'For growing businesses needing more power.', 
+    price: '2,500', 
+    features: ['Unlimited quotes', '1-Click Invoice Generation', 'E-Signatures'], 
+    buttonText: 'Start Professional Trial', 
     isPopular: true, 
     buttonVariant: 'primary' 
   },
   { 
-    planName: 'Agency', 
-    description: 'Powerful tools for growing teams and agencies.', 
-    price: '49', 
-    features: ['Up to 5 Team Members', 'Client Portal', 'Custom Domain', '24/7 Dedicated Support'], 
-    buttonText: 'Contact Us', 
+    planName: 'Business', 
+    description: 'Advanced features for established teams.', 
+    price: '5,000', 
+    features: ['Team accounts', 'M-Pesa STK Push Integration', 'WhatsApp Delivery'], 
+    buttonText: 'Start Free Trial', 
     buttonVariant: 'secondary' 
   },
 ];
 
+import { PublicNavBar } from '@/components/ui/public-navbar';
+
 export default function Pricing() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col relative overflow-x-hidden">
-      {/* Navigation matching LandingPage */}
-      <nav className="relative z-20 bg-white/10 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <Link to="/" className="flex items-center">
-              <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-                <AppLogo className="h-8 w-8" />
-              </div>
-              <AppLogoDarkText className="text-2xl ml-3 drop-shadow-md text-white" />
-            </Link>
-            <div className="flex items-center space-x-6">
-              <Link to="/login" className="text-white hover:text-blue-200 font-medium transition-colors drop-shadow-sm">Log in</Link>
-              <Link to="/register" className="bg-white text-blue-900 hover:bg-gray-100 px-5 py-2.5 rounded-lg font-bold shadow-lg transition-all">
-                Start Free Trial
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="dark min-h-screen bg-zinc-950 text-white flex flex-col relative overflow-x-hidden">
+      {/* Background Mesh Gradient */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-90">
+        <MeshGradient
+          style={{ height: "100%", width: "100%" }}
+          distortion={0.8}
+          swirl={0.1}
+          offsetX={0}
+          offsetY={0}
+          scale={1}
+          rotation={0}
+          speed={1}
+          colors={["hsl(216, 90%, 27%)", "hsl(243, 68%, 36%)", "hsl(205, 91%, 64%)", "hsl(211, 61%, 57%)"]}
+        />
+      </div>
 
-      <div className="flex-grow pt-12 pb-24 relative z-10">
+      <PublicNavBar />
+
+      <div className="flex-grow pt-12 pb-24 relative z-10 bg-zinc-950/20 shadow-2xl">
           <ModernPricingPage
               title={
                   <>
-                      Find the <span className="text-blue-400">Perfect Plan</span> for Your Business
+                      Simple, <span className="text-blue-300">transparent</span> pricing
                   </>
               }
-              subtitle="Start for free, then grow with us. Flexible plans for professionals of all sizes."
+              subtitle="Choose the perfect plan for your contracting business."
               plans={myPricingPlans}
           />
       </div>

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo, useCallback, createContext, Children, useContext } from "react";
 import { cva } from "class-variance-authority";
-import { ArrowRight, User, Gem, Lock, Eye, EyeOff, ArrowLeft, X, AlertCircle, PartyPopper, Loader } from "lucide-react";
+import { ArrowRight, User, Gem, Lock, Eye, EyeOff, ArrowLeft, X, AlertCircle, PartyPopper, Loader, Mail, Building } from "lucide-react";
 import { AppLogo, AppLogoDarkText } from '@/components/ui/logo';
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -138,26 +138,32 @@ const modalSteps = [
 ];
 const TEXT_LOOP_INTERVAL = 1.5;
 
-const DefaultLogo = () => ( <div className="bg-blue-600 text-white rounded-md p-1.5 shadow-lg"> <Gem className="h-5 w-5" /> </div> );
-
 export const AuthComponent = ({ mode = 'register' }) => {
   const { login, register } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   const [authStep, setAuthStep] = useState("username");
   const [modalStatus, setModalStatus] = useState('closed');
   const [modalErrorMessage, setModalErrorMessage] = useState('');
   const confettiRef = useRef(null);
 
-  const isUsernameValid = username.length >= 3;
+  const isUsernameValid = username.trim().length >= 3;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isCompanyValid = companyName.trim().length >= 2;
   const isPasswordValid = password.length >= 6;
   const isConfirmPasswordValid = confirmPassword.length >= 6;
   
+  const emailInputRef = useRef(null);
+  const companyInputRef = useRef(null);
   const passwordInputRef = useRef(null);
   const confirmPasswordInputRef = useRef(null);
   
@@ -175,8 +181,8 @@ export const AuthComponent = ({ mode = 'register' }) => {
     e.preventDefault();
     if (modalStatus !== 'closed') return;
     
-    if (mode === 'register' && authStep !== 'confirmPassword') return;
     if (mode === 'login' && authStep !== 'password') return;
+    if (mode === 'register' && authStep !== 'confirmPassword') return;
 
     if (mode === 'register' && password !== confirmPassword) {
         setModalErrorMessage("Passwords do not match!");
@@ -192,9 +198,9 @@ export const AuthComponent = ({ mode = 'register' }) => {
         } else {
             await register({
                 username: username,
-                email: username + '@example.com', // temporary generic email since we switched UI to username only to match legacy backend perfectly
+                email: email,
                 password: password,
-                company_name: '',
+                company_name: companyName,
                 phone_number: ''
             });
         }
@@ -216,14 +222,19 @@ export const AuthComponent = ({ mode = 'register' }) => {
 
   const handleProgressStep = () => {
     if (authStep === 'username') {
-        if (isUsernameValid) setAuthStep("password");
+        if (isUsernameValid) setAuthStep(mode === 'register' ? 'email' : 'password');
+    } else if (authStep === 'email') {
+        if (isEmailValid) setAuthStep('companyName');
+    } else if (authStep === 'companyName') {
+        if (isCompanyValid) setAuthStep('password');
     } else if (authStep === 'password') {
         if (isPasswordValid) {
-            if (mode === 'register') {
-                setAuthStep("confirmPassword");
-            } else {
-                handleFinalSubmit({ preventDefault: () => {} });
-            }
+            if (mode === 'register') setAuthStep('confirmPassword');
+            else handleFinalSubmit({ preventDefault: () => {} });
+        }
+    } else if (authStep === 'confirmPassword') {
+        if (isConfirmPasswordValid) {
+            handleFinalSubmit({ preventDefault: () => {} });
         }
     }
   };
@@ -236,11 +247,10 @@ export const AuthComponent = ({ mode = 'register' }) => {
   };
 
   const handleGoBack = () => {
-    if (authStep === 'confirmPassword') {
-        setAuthStep('password');
-        setConfirmPassword('');
-    }
-    else if (authStep === 'password') setAuthStep('username');
+    if (authStep === 'confirmPassword') setAuthStep('password');
+    else if (authStep === 'password') setAuthStep(mode === 'register' ? 'companyName' : 'username');
+    else if (authStep === 'companyName') setAuthStep('email');
+    else if (authStep === 'email') setAuthStep('username');
   };
 
   const closeModal = () => {
@@ -249,7 +259,9 @@ export const AuthComponent = ({ mode = 'register' }) => {
   };
 
   useEffect(() => {
-      if (authStep === 'password') setTimeout(() => passwordInputRef.current?.focus(), 500);
+      if (authStep === 'email') setTimeout(() => emailInputRef.current?.focus(), 500);
+      else if (authStep === 'companyName') setTimeout(() => companyInputRef.current?.focus(), 500);
+      else if (authStep === 'password') setTimeout(() => passwordInputRef.current?.focus(), 500);
       else if (authStep === 'confirmPassword') setTimeout(() => confirmPasswordInputRef.current?.focus(), 500);
   }, [authStep]);
 
@@ -323,40 +335,64 @@ export const AuthComponent = ({ mode = 'register' }) => {
                 <AnimatePresence mode="wait">
                     {authStep === "username" && <motion.div key="email-content" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center gap-4">
                         <BlurFade delay={0.25 * 1} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl md:text-6xl tracking-tight text-white whitespace-nowrap">{mode === 'login' ? 'Welcome Back' : 'Get Started'}</p></div></BlurFade>
-                        <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-white/60">{mode === 'login' ? 'Enter your username to sign in' : 'Enter your username to create an account'}</p></BlurFade>
+                        <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-white/60">{mode === 'login' ? 'Enter your username to sign in' : 'What should we call you?'}</p></BlurFade>
+                    </motion.div>}
+                    {authStep === "email" && <motion.div key="email-title" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center text-center gap-4">
+                        <BlurFade delay={0} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl tracking-tight text-white whitespace-nowrap">Your Email</p></div></BlurFade>
+                        <BlurFade delay={0.25 * 1}><p className="text-sm font-medium text-white/60">Where should we send your account details?</p></BlurFade>
+                    </motion.div>}
+                    {authStep === "companyName" && <motion.div key="company-title" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center text-center gap-4">
+                        <BlurFade delay={0} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl tracking-tight text-white whitespace-nowrap">Business</p></div></BlurFade>
+                        <BlurFade delay={0.25 * 1}><p className="text-sm font-medium text-white/60">What's your business called?</p></BlurFade>
                     </motion.div>}
                     {authStep === "password" && <motion.div key="password-title" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center text-center gap-4">
                         <BlurFade delay={0} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl tracking-tight text-white whitespace-nowrap">{mode === 'login' ? 'Enter Password' : 'Create Password'}</p></div></BlurFade>
                         <BlurFade delay={0.25 * 1}><p className="text-sm font-medium text-white/60">{mode === 'login' ? 'Enter your secure password.' : 'Your password must be at least 6 characters.'}</p></BlurFade>
                     </motion.div>}
-                     {authStep === "confirmPassword" && <motion.div key="confirm-title" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center text-center gap-4">
-                         <BlurFade delay={0} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl tracking-tight text-white whitespace-nowrap">One Last Step</p></div></BlurFade>
-                         <BlurFade delay={0.25 * 1}><p className="text-sm font-medium text-white/60">Confirm your password to continue</p></BlurFade>
+                    {authStep === "confirmPassword" && <motion.div key="confirm-title" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center text-center gap-4">
+                        <BlurFade delay={0} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl tracking-tight text-white whitespace-nowrap">One Last Step</p></div></BlurFade>
+                        <BlurFade delay={0.25 * 1}><p className="text-sm font-medium text-white/60">Confirm your password to continue</p></BlurFade>
                     </motion.div>}
                 </AnimatePresence>
                 
                 <form onSubmit={handleFinalSubmit} className="w-[300px] space-y-6">
                      <AnimatePresence>
-                        {authStep !== 'confirmPassword' && <motion.div key="email-password-fields" exit={{ opacity: 0, filter: 'blur(4px)' }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full space-y-6">
-                            <BlurFade delay={authStep === 'username' ? 0.25 * 4 : 0} inView={true} className="w-full">
+                        {authStep !== 'confirmPassword' && <motion.div key="auth-fields" exit={{ opacity: 0, filter: 'blur(4px)' }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full space-y-6">
+                            <BlurFade delay={authStep === 'username' ? 0.25 * 4 : 0} inView={true} className={cn("w-full", authStep !== 'username' && "hidden")}>
                                 <div className="relative w-full">
-                                    <AnimatePresence>
-                                        {authStep === "password" && <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3, delay: 0.4 }} className="absolute -top-6 left-4 z-10"><label className="text-xs text-white/60 font-semibold">Username</label></motion.div>}
-                                    </AnimatePresence>
                                     <div className="glass-input-wrap w-full"><div className="glass-input">
                                         <span className="glass-input-text-area"></span>
                                         <div className={cn( "relative z-10 flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out", username.length > 20 && authStep === 'username' ? "w-0 px-0" : "w-10 pl-2" )}><User className="h-5 w-5 text-white/80 flex-shrink-0" /></div>
-                                        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} className={cn("relative z-10 h-full w-0 flex-grow bg-transparent text-white placeholder:text-white/60 focus:outline-none transition-[padding-right] duration-300 ease-in-out delay-300", isUsernameValid && authStep === 'username' ? "pr-2" : "pr-0")} />
+                                        <input type="text" placeholder={mode === 'login' ? "Username" : "Full Name / Username"} value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} className={cn("relative z-10 h-full w-0 flex-grow bg-transparent text-white placeholder:text-white/60 focus:outline-none transition-[padding-right] duration-300 ease-in-out delay-300", isUsernameValid && authStep === 'username' ? "pr-2" : "pr-0")} />
                                         <div className={cn( "relative z-10 flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out", isUsernameValid && authStep === 'username' ? "w-10 pr-1" : "w-0" )}><GlassButton type="button" onClick={handleProgressStep} size="icon" aria-label="Continue with username" contentClassName="text-white hover:text-white"><ArrowRight className="w-5 h-5" /></GlassButton></div>
                                     </div></div>
                                 </div>
                             </BlurFade>
+                            <BlurFade delay={0} inView={true} className={cn("w-full", authStep !== 'email' && "hidden")}>
+                                <div className="relative w-full">
+                                    <div className="glass-input-wrap w-full"><div className="glass-input">
+                                        <span className="glass-input-text-area"></span>
+                                        <div className={cn( "relative z-10 flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out", email.length > 20 && authStep === 'email' ? "w-0 px-0" : "w-10 pl-2" )}><Mail className="h-5 w-5 text-white/80 flex-shrink-0" /></div>
+                                        <input ref={emailInputRef} type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={handleKeyDown} className={cn("relative z-10 h-full w-0 flex-grow bg-transparent text-white placeholder:text-white/60 focus:outline-none transition-[padding-right] duration-300 ease-in-out delay-300", isEmailValid && authStep === 'email' ? "pr-2" : "pr-0")} />
+                                        <div className={cn( "relative z-10 flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out", isEmailValid && authStep === 'email' ? "w-10 pr-1" : "w-0" )}><GlassButton type="button" onClick={handleProgressStep} size="icon" aria-label="Continue with email" contentClassName="text-white hover:text-white"><ArrowRight className="w-5 h-5" /></GlassButton></div>
+                                    </div></div>
+                                </div>
+                                <button type="button" onClick={handleGoBack} className="mt-4 flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"><ArrowLeft className="w-4 h-4" /> Go back</button>
+                            </BlurFade>
+                            <BlurFade delay={0} inView={true} className={cn("w-full", authStep !== 'companyName' && "hidden")}>
+                                <div className="relative w-full">
+                                    <div className="glass-input-wrap w-full"><div className="glass-input">
+                                        <span className="glass-input-text-area"></span>
+                                        <div className={cn( "relative z-10 flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out", companyName.length > 20 && authStep === 'companyName' ? "w-0 px-0" : "w-10 pl-2" )}><Building className="h-5 w-5 text-white/80 flex-shrink-0" /></div>
+                                        <input ref={companyInputRef} type="text" placeholder="Company Name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} onKeyDown={handleKeyDown} className={cn("relative z-10 h-full w-0 flex-grow bg-transparent text-white placeholder:text-white/60 focus:outline-none transition-[padding-right] duration-300 ease-in-out delay-300", isCompanyValid && authStep === 'companyName' ? "pr-2" : "pr-0")} />
+                                        <div className={cn( "relative z-10 flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out", isCompanyValid && authStep === 'companyName' ? "w-10 pr-1" : "w-0" )}><GlassButton type="button" onClick={handleProgressStep} size="icon" aria-label="Continue with company" contentClassName="text-white hover:text-white"><ArrowRight className="w-5 h-5" /></GlassButton></div>
+                                    </div></div>
+                                </div>
+                                <button type="button" onClick={handleGoBack} className="mt-4 flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"><ArrowLeft className="w-4 h-4" /> Go back</button>
+                            </BlurFade>
                             <AnimatePresence>
                                 {authStep === "password" && <BlurFade key="password-field" className="w-full">
                                     <div className="relative w-full">
-                                        <AnimatePresence>
-                                            {password.length > 0 && <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="absolute -top-6 left-4 z-10"><label className="text-xs text-white/60 font-semibold">Password</label></motion.div>}
-                                        </AnimatePresence>
                                         <div className="glass-input-wrap w-full"><div className="glass-input">
                                             <span className="glass-input-text-area"></span>
                                             <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
@@ -374,9 +410,6 @@ export const AuthComponent = ({ mode = 'register' }) => {
                     <AnimatePresence>
                         {authStep === 'confirmPassword' && <BlurFade key="confirm-password-field" className="w-full">
                             <div className="relative w-full">
-                                <AnimatePresence>
-                                    {confirmPassword.length > 0 && <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="absolute -top-6 left-4 z-10"><label className="text-xs text-white/60 font-semibold">Confirm Password</label></motion.div>}
-                                </AnimatePresence>
                                 <div className="glass-input-wrap w-[300px]"><div className="glass-input">
                                     <span className="glass-input-text-area"></span>
                                     <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 pl-2">
@@ -410,3 +443,4 @@ export const AuthComponent = ({ mode = 'register' }) => {
     </div>
   );
 };
+

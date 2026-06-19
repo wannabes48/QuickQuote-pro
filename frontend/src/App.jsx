@@ -13,6 +13,9 @@ import PublicQuote from './pages/PublicQuote';
 import Invoices from './pages/Invoices';
 import Settings from './pages/Settings';
 import Pricing from './pages/Pricing';
+import Features from './pages/Features';
+import About from './pages/About';
+import FAQ from './pages/FAQ';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -31,6 +34,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/quote/:token" element={<PublicQuote />} />
+          
+          <Route path="/features" element={<Features />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/faq" element={<FAQ />} />
           
           {/* Authenticated Routes with Layout */}
           <Route element={<PrivateRoute><Layout /></PrivateRoute>}>

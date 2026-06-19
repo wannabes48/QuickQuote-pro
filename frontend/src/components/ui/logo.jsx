@@ -40,11 +40,11 @@ export function AppLogoText({ className, showTagline = false }) {
   return (
     <div className={`flex flex-col justify-center ${className || ''}`}>
       <div className="font-extrabold tracking-tight">
-        <span className="text-slate-900 dark:text-white">QuickQuote</span>
+        <span className="text-slate-900">QuickQuote</span>
         <span className="text-blue-600 ml-1">Pro</span>
       </div>
       {showTagline && (
-        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide mt-1">
+        <span className="text-xs text-slate-500 font-medium tracking-wide mt-1">
           Professional quotations, Accuracy & approval
         </span>
       )}
