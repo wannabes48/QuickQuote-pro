@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, Briefcase, Paintbrush, Wrench, FileText } from 'lucide-react';
+import { quoteTemplates } from '../lib/templates';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function QuoteBuilder() {
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
+    const [isTemplateSelected, setIsTemplateSelected] = useState(false);
+    
+    // Simulate fetching templates from an API
+    const [templates, setTemplates] = useState([]);
+    const [loadingTemplates, setLoadingTemplates] = useState(true);
+
     const [formData, setFormData] = useState({
         customer: '',
         quote_number: `Q-${Math.floor(Math.random() * 10000)}`,
@@ -13,13 +22,24 @@ export default function QuoteBuilder() {
         currency: 'KSh',
         notes: ''
     });
-    const [items, setItems] = useState([
-        { description: '', quantity: 1, unit_price: 0 }
-    ]);
+    const [items, setItems] = useState([]);
 
     useEffect(() => {
         api.get('customers/').then(res => setCustomers(res.data));
+        
+        // Simulate API fetch for templates
+        setTimeout(() => {
+            setTemplates(quoteTemplates);
+            setLoadingTemplates(false);
+        }, 600); // Small delay to simulate network
     }, []);
+
+    const handleSelectTemplate = (template) => {
+        // Deep copy items to avoid mutating
+        setItems(template.items.map(item => ({...item})));
+        setFormData(prev => ({ ...prev, notes: template.notes }));
+        setIsTemplateSelected(true);
+    };
 
     const calculateSubtotal = () => {
         return items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
@@ -46,7 +66,7 @@ export default function QuoteBuilder() {
                 ...formData,
                 items: items
             };
-            const res = await api.post('quotes/', data);
+            await api.post('quotes/', data);
             navigate('/quotes');
         } catch (error) {
             console.error("Failed to create quote", error);
@@ -58,10 +78,77 @@ export default function QuoteBuilder() {
     const vat = subtotal * 0.16;
     const total = subtotal + vat;
 
+    // --- TEMPLATE SELECTION VIEW ---
+    if (!isTemplateSelected) {
+        // Group templates by category
+        const categories = [...new Set(templates.map(t => t.category))];
+
+        const getCategoryIcon = (category) => {
+            if (category === "General") return <FileText className="w-5 h-5" />;
+            if (category === "Freelancer / Solo Creator") return <Paintbrush className="w-5 h-5" />;
+            if (category === "Agency / Growing Team") return <Briefcase className="w-5 h-5" />;
+            if (category === "Contractor / Field Services") return <Wrench className="w-5 h-5" />;
+            return <FileText className="w-5 h-5" />;
+        };
+
+        return (
+            <div className="max-w-6xl mx-auto space-y-8">
+                <div className="flex items-center space-x-4">
+                    <button onClick={() => navigate('/quotes')} className="p-2 bg-white border border-gray-border rounded-lg hover:bg-gray-50 transition-colors">
+                        <ArrowLeft className="w-5 h-5 text-gray-500" />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-dark tracking-tight">Select a Template</h1>
+                        <p className="text-muted-foreground mt-1">Choose a pre-built template to instantly generate a quote tailored to your business.</p>
+                    </div>
+                </div>
+
+                {loadingTemplates ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                ) : (
+                    <div className="space-y-10">
+                        {categories.map(category => (
+                            <div key={category} className="space-y-4">
+                                <div className="flex items-center space-x-2 border-b pb-2">
+                                    <div className="p-1.5 bg-primary/10 text-primary rounded-md">
+                                        {getCategoryIcon(category)}
+                                    </div>
+                                    <h2 className="text-xl font-bold text-gray-800">{category}</h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {templates.filter(t => t.category === category).map(template => (
+                                        <Card 
+                                            key={template.id} 
+                                            className="cursor-pointer hover:border-primary transition-all duration-200 hover:shadow-md group"
+                                            onClick={() => handleSelectTemplate(template)}
+                                        >
+                                            <CardHeader>
+                                                <CardTitle className="group-hover:text-primary transition-colors">{template.name}</CardTitle>
+                                                <CardDescription className="line-clamp-2">{template.description}</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <Badge variant="secondary" className="bg-primary/5 text-primary hover:bg-primary/10 border-primary/20">
+                                                    {template.items.length} Pre-filled Items
+                                                </Badge>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // --- QUOTE BUILDER VIEW ---
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center space-x-4">
-                <button onClick={() => navigate('/quotes')} className="p-2 bg-white border border-gray-border rounded-lg hover:bg-gray-50 transition-colors">
+                <button onClick={() => setIsTemplateSelected(false)} className="p-2 bg-white border border-gray-border rounded-lg hover:bg-gray-50 transition-colors">
                     <ArrowLeft className="w-5 h-5 text-gray-500" />
                 </button>
                 <div>

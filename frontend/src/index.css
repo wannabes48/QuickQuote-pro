@@ -46,6 +46,7 @@
     --destructive-foreground: #ffffff;
     --sidebar-accent-foreground: #ffffff;
     --sidebar-primary-foreground: #ffffff;
+    --button-ripple-color: oklch(0.145 0 0 / 0.3);
   }
 
   .dark {
@@ -81,6 +82,7 @@
     --destructive-foreground: #1e1e2e;
     --sidebar-accent-foreground: #1e1e2e;
     --sidebar-primary-foreground: #1e1e2e;
+    --button-ripple-color: oklch(0.985 0 0 / 0.5);
   }
 }
 
