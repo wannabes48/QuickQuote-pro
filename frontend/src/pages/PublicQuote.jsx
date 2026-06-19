@@ -4,8 +4,10 @@ import axios from 'axios';
 import SignatureCanvas from 'react-signature-canvas';
 import { Download, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { AppLogo, AppLogoText } from '@/components/ui/logo';
+import { useToast } from '../context/ToastContext';
 
 export default function PublicQuote() {
+    const { addToast } = useToast();
     const { token } = useParams();
     const [quote, setQuote] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ export default function PublicQuote() {
     const handleAccept = async () => {
         try {
             if (sigCanvas.current.isEmpty()) {
-                alert('Please provide your signature to accept the quote.');
+                addToast('Please provide your signature to accept the quote.', 'error');
                 return;
             }
 
@@ -54,7 +56,7 @@ export default function PublicQuote() {
             setQuote(prev => ({ ...prev, status: 'Accepted', signature_data: signatureData }));
         } catch (err) {
             console.error('Accept error:', err);
-            alert('Failed to submit signature: ' + (err.response?.data?.error || err.message || 'Unknown error'));
+            addToast('Failed to submit signature: ' + (err.response?.data?.error || err.message || 'Unknown error'), 'error');
         } finally {
             setSubmitting(false);
         }
@@ -63,7 +65,7 @@ export default function PublicQuote() {
     const handleDownload = async () => {
         // The PDF endpoint currently requires auth. For public access, we would need a public PDF endpoint.
         // For the MVP, we will simulate or point to a public endpoint if we create one.
-        alert('Downloading PDF...');
+        addToast('Downloading PDF...', 'info');
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-pulse flex flex-col items-center"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div><p className="text-gray-500 font-medium">Loading your secure quote...</p></div></div>;

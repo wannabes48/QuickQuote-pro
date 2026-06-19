@@ -1,11 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
-import { FileText, Plus, Download, Edit2, Trash2, Link as LinkIcon, FilePlus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { FileText, Plus, Download, Edit2, Trash2, Link as LinkIcon, FilePlus, MessageCircle, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
+import { AuthContext } from '../context/AuthContext';
+import { useContext } from 'react';
 
 export default function Quotes() {
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const { addToast } = useToast();
     const [quotes, setQuotes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+    const [upgradeMessage, setUpgradeMessage] = useState("");
+
+    const handleWhatsApp = (quote) => {
+        if (!user || ['Free', 'Starter'].includes(user.subscription_tier)) {
+            setUpgradeMessage("WhatsApp Delivery is a Professional tier feature. Upgrade to send quotes directly via WhatsApp!");
+            setUpgradeModalOpen(true);
+            return;
+        }
+        
+        const publicLink = window.location.origin + '/quote/' + quote.public_token;
+        const text = `Hi! Here is your quote #${quote.quote_number} for ${quote.currency} ${parseFloat(quote.total).toLocaleString()}. You can view and accept it securely here: ${publicLink}`;
+        const encodedText = encodeURIComponent(text);
+        
+        window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+        addToast('Opening WhatsApp...', 'success');
+    };
 
     useEffect(() => {
         fetchQuotes();
@@ -39,9 +62,9 @@ export default function Quotes() {
     const convertToInvoice = async (id) => {
         try {
             await api.post(`quotes/${id}/convert_to_invoice/`);
-            alert("Quote successfully converted to invoice!");
+            addToast("Quote successfully converted to invoice!", "success");
         } catch (error) {
-            alert("Failed to convert: " + (error.response?.data?.error || error.message));
+            addToast("Failed to convert: " + (error.response?.data?.error || error.message), "error");
         }
     };
 
@@ -89,7 +112,8 @@ export default function Quotes() {
                                 <td className="px-6 py-4 text-gray-500">{new Date(quote.created_at).toLocaleDateString()}</td>
                                 <td className="px-6 py-4 text-right">
                                     <button onClick={() => downloadPDF(quote.id, quote.quote_number)} className="text-gray-400 hover:text-primary mr-4 transition-colors" title="Download PDF"><Download className="w-4 h-4" /></button>
-                                    <button onClick={() => { navigator.clipboard.writeText(window.location.origin + '/quote/' + quote.public_token); alert('Public Link copied to clipboard!'); }} className="text-gray-400 hover:text-primary mr-4 transition-colors" title="Copy Public Link"><LinkIcon className="w-4 h-4" /></button>
+                                    <button onClick={() => handleWhatsApp(quote)} className="text-gray-400 hover:text-green-500 mr-4 transition-colors" title="Send via WhatsApp"><MessageCircle className="w-4 h-4" /></button>
+                                    <button onClick={() => { navigator.clipboard.writeText(window.location.origin + '/quote/' + quote.public_token); addToast('Public Link copied to clipboard!', 'success'); }} className="text-gray-400 hover:text-primary mr-4 transition-colors" title="Copy Public Link"><LinkIcon className="w-4 h-4" /></button>
                                     {quote.status === 'Accepted' && (
                                         <button onClick={() => convertToInvoice(quote.id)} className="text-gray-400 hover:text-green-500 mr-4 transition-colors" title="Convert to Invoice"><FilePlus className="w-4 h-4" /></button>
                                     )}
@@ -109,6 +133,38 @@ export default function Quotes() {
                     </tbody>
                 </table>
             </div>
+
+            {upgradeModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 space-y-6">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                                <MessageCircle className="w-8 h-8" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-dark">Upgrade Required</h2>
+                            <p className="text-gray-500 leading-relaxed">
+                                {upgradeMessage}
+                            </p>
+                        </div>
+                        <div className="flex gap-4 pt-4">
+                            <button 
+                                type="button"
+                                onClick={() => setUpgradeModalOpen(false)}
+                                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={() => navigate('/settings?tab=subscription')}
+                                className="flex-1 px-4 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-md"
+                            >
+                                View Plans
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

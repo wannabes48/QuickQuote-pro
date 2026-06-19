@@ -5,11 +5,17 @@ import { Plus, Trash2, ArrowLeft, Save, Briefcase, Paintbrush, Wrench, FileText 
 import { quoteTemplates } from '../lib/templates';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AuthContext } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export default function QuoteBuilder() {
+    const { addToast } = useToast();
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
     const [isTemplateSelected, setIsTemplateSelected] = useState(false);
+    
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+    const [upgradeMessage, setUpgradeMessage] = useState("");
     
     // Simulate fetching templates from an API
     const [templates, setTemplates] = useState([]);
@@ -70,7 +76,12 @@ export default function QuoteBuilder() {
             navigate('/quotes');
         } catch (error) {
             console.error("Failed to create quote", error);
-            alert("Failed to create quote. Check inputs.");
+            if (error.response?.status === 403 && error.response?.data?.error) {
+                setUpgradeMessage(error.response.data.error);
+                setUpgradeModalOpen(true);
+            } else {
+                addToast("Failed to create quote. Please check your inputs and try again.", "error");
+            }
         }
     };
 
@@ -257,6 +268,38 @@ export default function QuoteBuilder() {
                     </button>
                 </div>
             </form>
+
+            {upgradeModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 space-y-6">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                                <FileText className="w-8 h-8" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-dark">Upgrade Required</h2>
+                            <p className="text-gray-500 leading-relaxed">
+                                {upgradeMessage}
+                            </p>
+                        </div>
+                        <div className="flex gap-4 pt-4">
+                            <button 
+                                type="button"
+                                onClick={() => setUpgradeModalOpen(false)}
+                                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={() => navigate('/settings?tab=subscription')}
+                                className="flex-1 px-4 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-md"
+                            >
+                                View Plans
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

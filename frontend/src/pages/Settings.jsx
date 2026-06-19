@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +13,9 @@ import { Separator } from '@/components/ui/separator';
 
 function Settings() {
     const { user } = useContext(AuthContext);
+    const { addToast } = useToast();
+    const [searchParams] = useSearchParams();
+    const defaultTab = searchParams.get('tab') || 'profile';
     
     // Local State for forms (simulating editability before API integration)
     const [profileData, setProfileData] = useState({
@@ -62,7 +67,7 @@ function Settings() {
             
             <Separator className="my-6" />
 
-            <Tabs defaultValue="profile" className="flex flex-col md:flex-row gap-8">
+            <Tabs defaultValue={defaultTab} className="flex flex-col md:flex-row gap-8">
                 <TabsList className="flex md:flex-col h-auto items-stretch justify-start gap-1 bg-transparent p-0 w-full md:w-48 shrink-0">
                     <TabsTrigger value="profile" className="justify-start px-4 py-2.5 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none w-full text-left">
                         Profile
@@ -75,6 +80,9 @@ function Settings() {
                     </TabsTrigger>
                     <TabsTrigger value="integrations" className="justify-start px-4 py-2.5 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none w-full text-left">
                         Integrations
+                    </TabsTrigger>
+                    <TabsTrigger value="subscription" className="justify-start px-4 py-2.5 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none w-full text-left">
+                        Subscription & Billing
                     </TabsTrigger>
                 </TabsList>
 
@@ -207,6 +215,74 @@ function Settings() {
                                 </div>
                             </CardContent>
                         </Card>
+                    </TabsContent>
+
+                    {/* Subscription Tab */}
+                    <TabsContent value="subscription" className="m-0 focus-visible:ring-0 focus-visible:outline-none">
+                        <div className="space-y-6">
+                            <Card className="border-border bg-primary/5 border-primary/20">
+                                <CardHeader>
+                                    <CardTitle>Current Plan</CardTitle>
+                                    <CardDescription>You are currently on the <strong className="text-primary">Free Tier</strong>.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-medium">Quotes Usage</p>
+                                            <p className="text-2xl font-bold">5 / 5</p>
+                                        </div>
+                                        <div className="text-right space-y-1">
+                                            <p className="text-sm font-medium">Next Billing Date</p>
+                                            <p className="text-muted-foreground">N/A</p>
+                                        </div>
+                                    </div>
+                                    <div className="w-full bg-gray-200 h-2 mt-4 rounded-full overflow-hidden">
+                                        <div className="bg-primary h-full w-full"></div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-2">You have reached your free tier limit. Upgrade to continue creating quotes.</p>
+                                </CardContent>
+                            </Card>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card className="border-border flex flex-col">
+                                    <CardHeader>
+                                        <CardTitle>Starter</CardTitle>
+                                        <CardDescription>Perfect for freelancers and solo creators.</CardDescription>
+                                        <div className="text-3xl font-bold mt-4">KSh 1,500 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+                                    </CardHeader>
+                                    <CardContent className="flex-1">
+                                        <ul className="space-y-2 text-sm text-muted-foreground">
+                                            <li>• Up to 50 quotes per month</li>
+                                            <li>• Standard templates</li>
+                                            <li>• Email delivery</li>
+                                        </ul>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button className="w-full" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Starter</Button>
+                                    </CardFooter>
+                                </Card>
+
+                                <Card className="border-border border-primary flex flex-col relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Popular</div>
+                                    <CardHeader>
+                                        <CardTitle>Professional</CardTitle>
+                                        <CardDescription>For growing agencies and businesses.</CardDescription>
+                                        <div className="text-3xl font-bold mt-4">KSh 3,500 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+                                    </CardHeader>
+                                    <CardContent className="flex-1">
+                                        <ul className="space-y-2 text-sm text-muted-foreground">
+                                            <li>• Unlimited quotes</li>
+                                            <li>• Premium templates</li>
+                                            <li>• Daraja Payments integration</li>
+                                            <li>• WhatsApp Delivery Integration</li>
+                                        </ul>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button className="w-full bg-primary hover:bg-blue-700 text-white" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Pro</Button>
+                                    </CardFooter>
+                                </Card>
+                            </div>
+                        </div>
                     </TabsContent>
                 </div>
             </Tabs>
