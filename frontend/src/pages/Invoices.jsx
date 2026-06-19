@@ -93,7 +93,7 @@ export default function Invoices() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-border overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-border overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-border">
                     <thead className="bg-gray-50">
                         <tr>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowLeft, Save, Briefcase, Paintbrush, Wrench, FileText } from 'lucide-react';
+import { CustomSelect } from '../components/ui/custom-select';
 import { quoteTemplates } from '../lib/templates';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -173,11 +174,13 @@ export default function QuoteBuilder() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
-                            <select required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white"
-                                value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})}>
-                                <option value="">Select a customer...</option>
-                                {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
+                            <CustomSelect 
+                                required 
+                                value={formData.customer} 
+                                onChange={(val) => setFormData({...formData, customer: val})}
+                                options={customers.map(c => ({ label: c.name, value: c.id }))}
+                                placeholder="Select a customer..."
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Quote Number</label>
@@ -186,12 +189,15 @@ export default function QuoteBuilder() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-                            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white"
-                                value={formData.currency} onChange={e => setFormData({...formData, currency: e.target.value})}>
-                                <option value="KSh">KSh (Kenyan Shilling)</option>
-                                <option value="USD">USD (US Dollar)</option>
-                                <option value="EUR">EUR (Euro)</option>
-                            </select>
+                            <CustomSelect 
+                                value={formData.currency} 
+                                onChange={(val) => setFormData({...formData, currency: val})}
+                                options={[
+                                    { label: 'KSh (Kenyan Shilling)', value: 'KSh' },
+                                    { label: 'USD (US Dollar)', value: 'USD' },
+                                    { label: 'EUR (Euro)', value: 'EUR' }
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>

@@ -68,7 +68,7 @@ function Settings() {
             <Separator className="my-6" />
 
             <Tabs defaultValue={defaultTab} className="flex flex-col md:flex-row gap-8">
-                <TabsList className="flex md:flex-col h-auto items-stretch justify-start gap-1 bg-transparent p-0 w-full md:w-48 shrink-0">
+                <TabsList className="flex md:flex-col h-auto items-stretch justify-start gap-1 bg-transparent p-0 w-full md:w-48 shrink-0 overflow-x-auto whitespace-nowrap scrollbar-hide">
                     <TabsTrigger value="profile" className="justify-start px-4 py-2.5 data-[state=active]:bg-muted/50 data-[state=active]:shadow-none w-full text-left">
                         Profile
                     </TabsTrigger>
