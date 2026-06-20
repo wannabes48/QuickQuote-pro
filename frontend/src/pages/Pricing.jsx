@@ -8,7 +8,7 @@ const myPricingPlans = [
   { 
     planName: 'Starter', 
     description: 'Perfect for solopreneurs getting started.', 
-    price: '1,000', 
+    price: '499', 
     features: ['Up to 50 quotes/month', 'PDF Generation', 'Email & SMS sending'], 
     buttonText: 'Start Free Trial', 
     buttonVariant: 'secondary'
@@ -16,7 +16,7 @@ const myPricingPlans = [
   { 
     planName: 'Professional', 
     description: 'For growing businesses needing more power.', 
-    price: '2,500', 
+    price: '1,500', 
     features: ['Unlimited quotes', '1-Click Invoice Generation', 'E-Signatures'], 
     buttonText: 'Start Professional Trial', 
     isPopular: true, 
@@ -25,7 +25,7 @@ const myPricingPlans = [
   { 
     planName: 'Business', 
     description: 'Advanced features for established teams.', 
-    price: '5,000', 
+    price: '3,500', 
     features: ['Team accounts', 'M-Pesa STK Push Integration', 'WhatsApp Delivery'], 
     buttonText: 'Start Free Trial', 
     buttonVariant: 'secondary' 

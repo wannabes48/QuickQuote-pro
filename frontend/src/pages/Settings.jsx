@@ -248,7 +248,7 @@ function Settings() {
                                     <CardHeader>
                                         <CardTitle>Starter</CardTitle>
                                         <CardDescription>Perfect for freelancers and solo creators.</CardDescription>
-                                        <div className="text-3xl font-bold mt-4">KSh 1,500 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+                                        <div className="text-3xl font-bold mt-4">KSh 499 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
                                     </CardHeader>
                                     <CardContent className="flex-1">
                                         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -267,7 +267,7 @@ function Settings() {
                                     <CardHeader>
                                         <CardTitle>Professional</CardTitle>
                                         <CardDescription>For growing agencies and businesses.</CardDescription>
-                                        <div className="text-3xl font-bold mt-4">KSh 3,500 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+                                        <div className="text-3xl font-bold mt-4">KSh 1,500 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
                                     </CardHeader>
                                     <CardContent className="flex-1">
                                         <ul className="space-y-2 text-sm text-muted-foreground">
@@ -279,6 +279,25 @@ function Settings() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button className="w-full bg-primary hover:bg-blue-700 text-white" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Pro</Button>
+                                    </CardFooter>
+                                </Card>
+
+                                <Card className="border-border flex flex-col">
+                                    <CardHeader>
+                                        <CardTitle>Business</CardTitle>
+                                        <CardDescription>Advanced features for established teams.</CardDescription>
+                                        <div className="text-3xl font-bold mt-4">KSh 3,500 <span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+                                    </CardHeader>
+                                    <CardContent className="flex-1">
+                                        <ul className="space-y-2 text-sm text-muted-foreground">
+                                            <li>• Everything in Pro</li>
+                                            <li>• Team accounts</li>
+                                            <li>• M-Pesa STK Push Integration</li>
+                                            <li>• WhatsApp Delivery</li>
+                                        </ul>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button className="w-full" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Business</Button>
                                     </CardFooter>
                                 </Card>
                             </div>

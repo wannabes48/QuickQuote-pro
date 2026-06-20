@@ -23,8 +23,8 @@ const Pricing2 = ({
       id: "starter",
       name: "Starter",
       description: "Perfect for solopreneurs getting started.",
-      monthlyPrice: "KSh 1,000",
-      yearlyPrice: "KSh 10,000",
+      monthlyPrice: "KSh 499",
+      yearlyPrice: "KSh 4,990",
       features: [
         { text: "Up to 50 quotes/month" },
         { text: "PDF Generation" },
@@ -39,8 +39,8 @@ const Pricing2 = ({
       id: "professional",
       name: "Professional",
       description: "For growing businesses needing more power.",
-      monthlyPrice: "KSh 2,500",
-      yearlyPrice: "KSh 25,000",
+      monthlyPrice: "KSh 1,500",
+      yearlyPrice: "KSh 15,000",
       features: [
         { text: "Unlimited quotes" },
         { text: "1-Click Invoice Generation" },
@@ -55,8 +55,8 @@ const Pricing2 = ({
       id: "business",
       name: "Business",
       description: "Advanced features for established teams.",
-      monthlyPrice: "KSh 5,000",
-      yearlyPrice: "KSh 50,000",
+      monthlyPrice: "KSh 3,500",
+      yearlyPrice: "KSh 35,000",
       features: [
         { text: "Everything in Pro" },
         { text: "Team accounts" },
