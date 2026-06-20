@@ -206,7 +206,7 @@ export default function QuoteBuilder() {
                     <h3 className="text-lg font-bold text-gray-dark mb-6 border-b pb-2">Line Items</h3>
                     
                     <div className="space-y-4">
-                        <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-500 uppercase">
+                        <div className="hidden md:grid grid-cols-12 gap-4 text-sm font-medium text-gray-500 uppercase mb-2">
                             <div className="col-span-6">Description</div>
                             <div className="col-span-2 text-center">Quantity</div>
                             <div className="col-span-2 text-right">Unit Price</div>
@@ -214,24 +214,30 @@ export default function QuoteBuilder() {
                         </div>
 
                         {items.map((item, index) => (
-                            <div key={index} className="grid grid-cols-12 gap-4 items-center">
-                                <div className="col-span-6">
+                            <div key={index} className="flex flex-col md:grid md:grid-cols-12 gap-4 items-start md:items-center bg-gray-50 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none relative">
+                                <div className="w-full md:col-span-6">
+                                    <label className="md:hidden block text-xs font-medium text-gray-500 uppercase mb-1">Description</label>
                                     <input type="text" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                                         placeholder="Item description"
                                         value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} />
                                 </div>
-                                <div className="col-span-2">
-                                    <input type="number" min="1" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-center"
+                                <div className="w-full md:col-span-2">
+                                    <label className="md:hidden block text-xs font-medium text-gray-500 uppercase mb-1">Quantity</label>
+                                    <input type="number" min="1" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary md:text-center"
                                         value={item.quantity} onChange={e => handleItemChange(index, 'quantity', parseInt(e.target.value))} />
                                 </div>
-                                <div className="col-span-2">
-                                    <input type="number" min="0" step="0.01" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-right"
+                                <div className="w-full md:col-span-2">
+                                    <label className="md:hidden block text-xs font-medium text-gray-500 uppercase mb-1">Unit Price</label>
+                                    <input type="number" min="0" step="0.01" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary md:text-right"
                                         value={item.unit_price} onChange={e => handleItemChange(index, 'unit_price', parseFloat(e.target.value))} />
                                 </div>
-                                <div className="col-span-2 flex justify-between items-center text-right font-medium text-gray-dark pl-4">
-                                    <span>{(item.quantity * item.unit_price).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                                    <button type="button" onClick={() => removeItem(index)} className="text-gray-400 hover:text-danger ml-2" disabled={items.length === 1}>
-                                        <Trash2 className="w-4 h-4" />
+                                <div className="w-full md:col-span-2 flex justify-between md:justify-end items-center text-right font-medium text-gray-dark md:pl-4 mt-2 md:mt-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-200">
+                                    <div>
+                                        <span className="md:hidden text-xs font-medium text-gray-500 uppercase mr-2">Amount:</span>
+                                        <span>{(item.quantity * item.unit_price).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                                    </div>
+                                    <button type="button" onClick={() => removeItem(index)} className="text-gray-400 hover:text-danger ml-4" disabled={items.length === 1}>
+                                        <Trash2 className="w-5 h-5 md:w-4 md:h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -242,8 +248,8 @@ export default function QuoteBuilder() {
                         <Plus className="w-4 h-4 mr-1" /> Add Line Item
                     </button>
 
-                    <div className="mt-10 border-t border-gray-border pt-6 flex justify-end">
-                        <div className="w-72 space-y-3 text-right">
+                    <div className="mt-10 border-t border-gray-border pt-6 flex flex-col md:flex-row justify-end">
+                        <div className="w-full md:w-72 space-y-3 text-right">
                             <div className="flex justify-between text-gray-500">
                                 <span>Subtotal</span>
                                 <span>{formData.currency} {subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
@@ -252,24 +258,28 @@ export default function QuoteBuilder() {
                                 <span>VAT (16%)</span>
                                 <span>{formData.currency} {vat.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                             </div>
-                            <div className="flex justify-between text-xl font-bold text-gray-dark pt-3 border-t">
+                            <div className="flex justify-between text-xl font-bold text-gray-dark border-t pt-3 mt-3">
                                 <span>Total</span>
-                                <span className="text-secondary">{formData.currency} {total.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                                <span className="text-primary">{formData.currency} {total.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-border">
-                    <h3 className="text-lg font-bold text-gray-dark mb-6 border-b pb-2">Additional Notes</h3>
-                    <textarea rows="3" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                        placeholder="Include any terms, conditions, or extra information for the client..."
-                        value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})}></textarea>
+
+                    {/* Notes */}
+                    <div className="mt-10 border-t border-gray-border pt-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Notes & Terms (Optional)</label>
+                        <textarea className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-y min-h-[100px]"
+                            placeholder="Add any specific terms, conditions or notes for the customer..."
+                            value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})}></textarea>
+                    </div>
                 </div>
 
-                <div className="flex justify-end pt-4 pb-12">
-                    <button type="submit" className="inline-flex items-center px-8 py-4 bg-primary text-white font-semibold text-lg rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
-                        <Save className="w-5 h-5 mr-2" />
+                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-border">
+                    <button type="button" onClick={() => navigate('/quotes')} className="w-full sm:w-auto px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors order-2 sm:order-1">
+                        Cancel
+                    </button>
+                    <button type="submit" className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm order-1 sm:order-2">
+                        <Save className="w-4 h-4 mr-2" />
                         Save Quote
                     </button>
                 </div>

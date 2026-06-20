@@ -97,18 +97,18 @@ export default function Invoices() {
                 <table className="min-w-full divide-y divide-gray-border">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoice #</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Paid</th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Invoice #</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Amount</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Paid</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-border">
                         {invoices.map(invoice => (
                             <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 font-medium text-gray-dark">{invoice.invoice_number}</td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 font-medium text-gray-dark whitespace-nowrap">{invoice.invoice_number}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
                                     <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                         invoice.status === 'Paid' ? 'bg-green-100 text-green-800' :
                                         invoice.status === 'Unpaid' ? 'bg-orange-100 text-orange-800' :
@@ -117,9 +117,9 @@ export default function Invoices() {
                                         {invoice.status}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 text-gray-500">{invoice.currency} {parseFloat(invoice.total).toLocaleString()}</td>
-                                <td className="px-6 py-4 text-gray-500">{invoice.currency} {parseFloat(invoice.amount_paid).toLocaleString()}</td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-6 py-4 text-gray-500 whitespace-nowrap">{invoice.currency} {parseFloat(invoice.total).toLocaleString()}</td>
+                                <td className="px-6 py-4 text-gray-500 whitespace-nowrap">{invoice.currency} {parseFloat(invoice.amount_paid).toLocaleString()}</td>
+                                <td className="px-6 py-4 text-right whitespace-nowrap">
                                     <button onClick={() => downloadPDF(invoice.id, invoice.invoice_number)} className="text-gray-400 hover:text-primary mr-4 transition-colors" title="Download PDF"><Download className="w-4 h-4" /></button>
                                     <button onClick={() => handleWhatsApp(invoice)} className="text-gray-400 hover:text-green-500 mr-4 transition-colors" title="Send via WhatsApp"><MessageCircle className="w-4 h-4" /></button>
                                     {invoice.status !== 'Paid' && (
