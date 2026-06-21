@@ -34,7 +34,7 @@ const data = {
   },
   contact: {
     email: 'hello@quickquotepro.com',
-    phone: '+254 700 000 000',
+    phone: '+254 745 131 817',
     address: 'Nairobi, Kenya',
   },
   company: {

@@ -42,7 +42,7 @@ const FEATURES = [
     label: "Instant Delivery",
     icon: MessageSquare,
     image:
-      "https://images.unsplash.com/photo-1577563908411-50cb989766a3?q=80&w=1200",
+      "https://res.cloudinary.com/dm12f7lnc/image/upload/v1770235184/samples/people/bicycle.jpg",
     description: "Send quotes directly to WhatsApp and Email.",
   },
   {

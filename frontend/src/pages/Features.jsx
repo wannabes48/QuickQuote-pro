@@ -12,28 +12,32 @@ const features = [
     icon: <FileText className="w-12 h-12 text-blue-400" />,
     title: 'Lightning-Fast Quotations',
     description: 'Create professional, branded quotations in seconds. Our interactive quote builder allows you to drag and drop services, adjust quantities, and instantly preview what your clients will see.',
-    benefits: ['Custom Branding', 'Mobile-Friendly Previews', '1-Click Send via Email/SMS']
+    benefits: ['Custom Branding', 'Mobile-Friendly Previews', '1-Click Send via Email/SMS'],
+    image: 'https://res.cloudinary.com/dm12f7lnc/image/upload/v1782062275/Screenshot_2026-06-21_201249_m7m8bp.jpg'
   },
   {
     id: 'invoices',
     icon: <Receipt className="w-12 h-12 text-emerald-400" />,
     title: 'Seamless Invoicing',
     description: 'Once a client accepts your quote, convert it to a legally binding invoice with a single click. Keep track of what has been paid and what is outstanding automatically.',
-    benefits: ['Auto-Conversion from Quotes', 'Payment Terms Customization', 'PDF Export']
+    benefits: ['Auto-Conversion from Quotes', 'Payment Terms Customization', 'PDF Export'],
+    image: 'https://res.cloudinary.com/dm12f7lnc/image/upload/v1782062274/Screenshot_2026-06-21_201410_dbz1vb.jpg'
   },
   {
     id: 'payments',
     icon: <CreditCard className="w-12 h-12 text-orange-400" />,
     title: 'Integrated Daraja Payments',
     description: 'Get paid faster. We integrate directly with Daraja M-Pesa APIs so your customers can pay you instantly directly from the invoice link. Reconciliations happen automatically.',
-    benefits: ['Instant M-Pesa Prompts', 'Zero Manual Reconciliation', 'Secure Transactions']
+    benefits: ['Instant M-Pesa Prompts', 'Zero Manual Reconciliation', 'Secure Transactions'],
+    image: 'https://res.cloudinary.com/dm12f7lnc/image/upload/v1782062283/M-PESA-Visa_saezzl.png'
   },
   {
     id: 'tracking',
     icon: <LineChart className="w-12 h-12 text-purple-400" />,
     title: 'Tracking & Analytics',
     description: 'Know exactly when your clients open your quotes. Our tracking engine gives you read receipts, time-spent analytics, and conversion rates right on your dashboard.',
-    benefits: ['Read Receipts', 'Conversion Tracking', 'Revenue Forecasting']
+    benefits: ['Read Receipts', 'Conversion Tracking', 'Revenue Forecasting'],
+    image: 'https://res.cloudinary.com/dm12f7lnc/image/upload/v1782062275/How-To-Keep-Track-Of-Invoices-And-Payments-1Asset-2_2x-1024x618_ezv67l.webp'
   }
 ];
 
@@ -126,7 +130,7 @@ export default function Features() {
                 <div className="relative aspect-square md:aspect-[4/3] bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex items-center justify-center overflow-hidden shadow-2xl">
                     {/* Placeholder for feature screenshot */}
                     <div className="w-full h-full border-2 border-dashed border-white/20 rounded-xl flex items-center justify-center text-white/40 font-medium">
-                       Interface Preview: {feature.title}
+                       {<img src={feature.image} alt={feature.title} className="w-full h-full object-cover" />}
                     </div>
                 </div>
               </div>
