@@ -7,7 +7,7 @@ def initiate_payhero_stk_push(phone_number, amount, reference):
     username = getattr(settings, 'PAYHERO_USERNAME', os.environ.get('PAYHERO_USERNAME'))
     password = getattr(settings, 'PAYHERO_PASSWORD', os.environ.get('PAYHERO_PASSWORD'))
     channel_id = getattr(settings, 'PAYHERO_CHANNEL_ID', os.environ.get('PAYHERO_CHANNEL_ID', '123'))
-    api_url = getattr(settings, 'PAYHERO_API_URL', os.environ.get('PAYHERO_API_URL', 'https://backend.payherokenya.com/api/v2/payments'))
+    api_url = getattr(settings, 'PAYHERO_API_URL', os.environ.get('PAYHERO_API_URL', 'https://backend.payhero.co.ke/api/v2/payments'))
     
     # Callback URL should be your production URL
     # For now, we will construct a default or rely on the environment
