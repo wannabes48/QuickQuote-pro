@@ -10,12 +10,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { SubscriptionModal } from '@/components/ui/subscription-modal';
 
 function Settings() {
     const { user } = useContext(AuthContext);
     const { addToast } = useToast();
     const [searchParams] = useSearchParams();
     const defaultTab = searchParams.get('tab') || 'profile';
+    
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedTier, setSelectedTier] = useState('');
     
     // Local State for forms (simulating editability before API integration)
     const [profileData, setProfileData] = useState({
@@ -258,7 +262,7 @@ function Settings() {
                                         </ul>
                                     </CardContent>
                                     <CardFooter>
-                                        <Button className="w-full" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Starter</Button>
+                                        <Button className="w-full" onClick={() => { setSelectedTier('Starter'); setModalOpen(true); }}>Upgrade to Starter</Button>
                                     </CardFooter>
                                 </Card>
 
@@ -278,7 +282,7 @@ function Settings() {
                                         </ul>
                                     </CardContent>
                                     <CardFooter>
-                                        <Button className="w-full bg-primary hover:bg-blue-700 text-white" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Pro</Button>
+                                        <Button className="w-full bg-primary hover:bg-blue-700 text-white" onClick={() => { setSelectedTier('Professional'); setModalOpen(true); }}>Upgrade to Pro</Button>
                                     </CardFooter>
                                 </Card>
 
@@ -297,7 +301,7 @@ function Settings() {
                                         </ul>
                                     </CardContent>
                                     <CardFooter>
-                                        <Button className="w-full" onClick={() => addToast('Redirecting to Daraja Checkout...', 'info')}>Upgrade to Business</Button>
+                                        <Button className="w-full" onClick={() => { setSelectedTier('Business'); setModalOpen(true); }}>Upgrade to Business</Button>
                                     </CardFooter>
                                 </Card>
                             </div>
@@ -305,6 +309,12 @@ function Settings() {
                     </TabsContent>
                 </div>
             </Tabs>
+            
+            <SubscriptionModal 
+                isOpen={modalOpen} 
+                onClose={() => setModalOpen(false)} 
+                tier={selectedTier} 
+            />
         </div>
     );
 }
