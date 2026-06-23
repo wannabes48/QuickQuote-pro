@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { AuthContext } from "@/context/AuthContext";
+import { SubscriptionModal } from "./subscription-modal";
 
 const Pricing2 = ({
   heading = "Simple, transparent pricing",
@@ -71,6 +73,9 @@ const Pricing2 = ({
   ],
 }) => {
   const [isYearly, setIsYearly] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState("");
+  const { user } = React.useContext(AuthContext);
 
   // --- minimal hero particles ---
   const canvasRef = useRef(null);
@@ -250,21 +255,40 @@ const Pricing2 = ({
                 </CardContent>
 
                 <CardFooter className="mt-auto">
-                  <Button
-                    asChild
-                    className={`w-full rounded-lg text-zinc-900 hover:bg-zinc-200 border-0 ${i === 1 ? "bg-white" : "bg-zinc-100"}`}
-                  >
-                    <Link to={plan.button.url}>
-                      {plan.button.text}
+                  {user ? (
+                    <Button
+                      onClick={() => {
+                        setSelectedTier(plan.name);
+                        setModalOpen(true);
+                      }}
+                      className={`w-full rounded-lg text-zinc-900 hover:bg-zinc-200 border-0 ${i === 1 ? "bg-white" : "bg-zinc-100"}`}
+                    >
+                      {plan.name === 'Starter' && user.subscription_tier === 'Starter' ? 'Current Plan' : plan.button.text.replace('Start Free Trial', 'Upgrade')}
                       <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      className={`w-full rounded-lg text-zinc-900 hover:bg-zinc-200 border-0 ${i === 1 ? "bg-white" : "bg-zinc-100"}`}
+                    >
+                      <Link to={plan.button.url}>
+                        {plan.button.text}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             ))}
           </div>
         </div>
       </div>
+      
+      <SubscriptionModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        tier={selectedTier} 
+      />
     </section>
   );
 };
