@@ -46,7 +46,16 @@ class RegisterView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+from django.core.cache import cache
+from rest_framework.throttling import AnonRateThrottle
+import time
+
+class LoginRateThrottle(AnonRateThrottle):
+    rate = '10/m'
+
 class CustomTokenObtainPairView(TokenObtainPairView):
+    throttle_classes = [LoginRateThrottle]
+
     def post(self, request, *args, **kwargs):
         schema = LoginSchema(data=request.data)
         if not schema.is_valid():
@@ -57,17 +66,71 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             )
             
         validated_data = schema.validated_data
+        email = validated_data['email']
+        
+        # --- Lockout & Progressive Delay Logic ---
+        cache_key_attempts = f"login_attempts_{email}"
+        cache_key_last_attempt = f"login_last_attempt_{email}"
+        
+        attempts = cache.get(cache_key_attempts, 0)
+        last_attempt = cache.get(cache_key_last_attempt, 0)
+        current_time = time.time()
+        
+        # If locked out (5 or more attempts), check if 15 mins (900s) has passed
+        if attempts >= 5:
+            if current_time - last_attempt < 900:
+                # Still locked out. Obfuscate by returning standard 401
+                return Response({"error": "Invalid credentials provided."}, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                # Lockout expired, reset counters
+                attempts = 0
+                cache.delete(cache_key_attempts)
+                cache.delete(cache_key_last_attempt)
+                
+        # Progressive delay logic: 1st fail->wait 1s. 2nd->wait 2s. 3rd->wait 5s. 4th->wait 30s.
+        delays = {1: 1, 2: 2, 3: 5, 4: 30}
+        if attempts in delays:
+            required_delay = delays[attempts]
+            if current_time - last_attempt < required_delay:
+                # Still in progressive delay. Obfuscate by returning standard 401
+                return Response({"error": "Invalid credentials provided."}, status=status.HTTP_401_UNAUTHORIZED)
+                
         serializer = self.get_serializer(data=validated_data)
         try:
             serializer.is_valid(raise_exception=True)
+            # Success! Reset counters
+            cache.delete(cache_key_attempts)
+            cache.delete(cache_key_last_attempt)
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.warning(f"Login authentication failed: {str(e)}")
+            # Failed attempt
+            attempts += 1
+            cache.set(cache_key_attempts, attempts, timeout=900)  # 15 mins
+            cache.set(cache_key_last_attempt, current_time, timeout=900)
+            logger.warning(f"Login authentication failed for {email}: {str(e)}. Attempt {attempts}/5")
+            
+            # If this is exactly the 5th attempt, send the email
+            if attempts == 5:
+                user = User.objects.filter(email__iexact=email).first()
+                if user:
+                    token = signer.sign(str(user.id))
+                    frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173').rstrip('/')
+                    reset_link = f"{frontend_url}/reset-password?token={token}"
+                    
+                    send_mail(
+                        'Account Locked - Suspicious Activity Detected',
+                        f'Your account has been locked due to too many failed login attempts.\n\n'
+                        f'If this was you and you forgot your password, please reset it using the link below:\n{reset_link}\n\n'
+                        f'The lockout will automatically expire in 15 minutes.',
+                        getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@quickquotepro.online'),
+                        [user.email],
+                        fail_silently=True,
+                    )
+            
             return Response(
                 {"error": "Invalid credentials provided."},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
