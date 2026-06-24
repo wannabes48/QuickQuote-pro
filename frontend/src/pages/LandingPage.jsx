@@ -1,13 +1,24 @@
 import React from 'react';
-import { AppLogo, AppLogoDarkText } from '@/components/ui/logo';
 import { Link } from 'react-router-dom';
-import { Pricing2 } from '@/components/ui/pricing-cards';
-import FeatureCarousel from '@/components/ui/feature-carousel';
 import { MeshGradient } from "@paper-design/shaders-react";
-import Footer from '@/components/ui/footer';
-import GradientCardDemo from '@/components/ui/gradient-card-demo';
 
+// Existing Components
 import { PublicNavBar } from '@/components/ui/public-navbar';
+import { Pricing2 } from '@/components/ui/pricing-cards';
+import Footer from '@/components/ui/footer';
+
+// New SaaS Sections
+import { TrustSection } from '../components/landing/TrustSection';
+import { FeaturesSection } from '../components/landing/FeaturesSection';
+import { HowItWorksSection } from '../components/landing/HowItWorksSection';
+import { IndustriesSection } from '../components/landing/IndustriesSection';
+import { DashboardPreviewSection } from '../components/landing/DashboardPreviewSection';
+import { BenefitsSection } from '../components/landing/BenefitsSection';
+import { TestimonialsSection } from '../components/landing/TestimonialsSection';
+import { FAQSection } from '../components/landing/FAQSection';
+import { FinalCTASection } from '../components/landing/FinalCTASection';
+
+import GradientCardDemo from '@/components/ui/gradient-card-demo';
 
 function LandingPage() {
   return (
@@ -29,10 +40,10 @@ function LandingPage() {
 
       <PublicNavBar />
 
-      {/* Hero Section */}
-      <main className="flex-grow flex flex-col relative z-10 bg-zinc-950/20 shadow-2xl pb-10">
-        <div className="flex-grow flex items-center justify-center">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+      <main className="flex-grow flex flex-col relative z-10 w-full bg-zinc-950/20 shadow-2xl pb-10">
+        {/* HERO SECTION */}
+        <section className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold text-sm shadow-xl">
               Designed for Contractors
             </div>
@@ -50,54 +61,45 @@ function LandingPage() {
                 Watch Demo
               </Link>
             </div>
-
-            {/* Simple Mockup/Preview Graphic */}
-            <div className="mt-24 max-w-4xl mx-auto">
-              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/20">
-                <div className="bg-gray-100 border-b border-gray-200 px-4 py-3 flex items-center">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  </div>
-                </div>
-                <div className="p-8 text-left bg-gray-50">
-                  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 max-w-md mx-auto">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-lg">QUICKQUOTE PRO</h3>
-                        <p className="text-sm text-gray-500">Quote #0001</p>
-                      </div>
-                      <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">ACCEPTED</div>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex justify-between text-sm border-b pb-2">
-                        <span className="text-gray-500">Solar installation</span>
-                        <span className="font-semibold text-gray-900">KSh 15,080</span>
-                      </div>
-                      <button className="w-full py-2 bg-gray-100 text-gray-500 rounded font-medium text-sm border border-gray-200">Convert to Invoice</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
+        </section>
 
-        {/* Feature Carousel */}
-        <div className="relative z-20 mt-12 mb-12">
-          <FeatureCarousel />
-        </div>
+        {/* TRUST SECTION */}
+        <TrustSection />
 
-        {/* Gradient Cards Demo Section */}
+        {/* FEATURES SECTION */}
+        <FeaturesSection />
+
+        {/* HOW IT WORKS SECTION */}
+        <HowItWorksSection />
+
+        {/* DASHBOARD PREVIEW SECTION */}
+        <DashboardPreviewSection />
+
+        {/* INDUSTRIES SECTION */}
+        <IndustriesSection />
+
+        {/* BENEFITS SECTION */}
+        <BenefitsSection />
+
+        {/* TESTIMONIALS SECTION */}
+        <TestimonialsSection />
+
+        {/* GRADIENT CARD DEMO SECTION */}
         <div className="relative z-20 mb-12 bg-zinc-950/40">
           <GradientCardDemo />
         </div>
 
-        {/* Pricing Section stays at the bottom, overlapping the fixed background with its own dark background */}
-        <div className="relative z-20 mb-20">
+        {/* PRICING SECTION */}
+        <div id="pricing" className="relative z-20 py-12 bg-zinc-950">
           <Pricing2 />
         </div>
+
+        {/* FAQ SECTION */}
+        <FAQSection />
+
+        {/* FINAL CTA SECTION */}
+        <FinalCTASection />
       </main>
 
       <Footer />

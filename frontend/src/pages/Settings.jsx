@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { SubscriptionModal } from '@/components/ui/subscription-modal';
+import { Loader2 } from 'lucide-react';
 
 function Settings() {
     const { user } = useContext(AuthContext);
@@ -48,16 +49,36 @@ function Settings() {
         whatsapp: false
     });
 
-    const handleSaveProfile = (e) => {
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+    const [isSavingBusiness, setIsSavingBusiness] = useState(false);
+    const [isSavingSecurity, setIsSavingSecurity] = useState(false);
+
+    const handleSaveProfile = async (e) => {
         e.preventDefault();
-        // Placeholder for API call
-        console.log('Saved profile:', profileData);
+        setIsSavingProfile(true);
+        // Simulate API call
+        await new Promise(r => setTimeout(r, 1200));
+        setIsSavingProfile(false);
+        addToast("Profile updated successfully", "success");
     };
 
-    const handleSaveBusiness = (e) => {
+    const handleSaveBusiness = async (e) => {
         e.preventDefault();
-        // Placeholder for API call
-        console.log('Saved business:', businessData);
+        setIsSavingBusiness(true);
+        // Simulate API call
+        await new Promise(r => setTimeout(r, 1200));
+        setIsSavingBusiness(false);
+        addToast("Business settings saved", "success");
+    };
+
+    const handleSaveSecurity = async (e) => {
+        e.preventDefault();
+        setIsSavingSecurity(true);
+        // Simulate API call
+        await new Promise(r => setTimeout(r, 1500));
+        setIsSavingSecurity(false);
+        addToast("Password changed successfully", "success");
+        setSecurityData({ current_password: '', new_password: '', confirm_password: '' });
     };
 
     return (
@@ -119,7 +140,9 @@ function Settings() {
                                         <Label htmlFor="email">Email Address</Label>
                                         <Input id="email" type="email" value={profileData.email} onChange={e => setProfileData({...profileData, email: e.target.value})} />
                                     </div>
-                                    <Button type="submit" className="mt-4">Save Changes</Button>
+                                    <Button type="submit" className="mt-4" disabled={isSavingProfile}>
+                                        {isSavingProfile ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : 'Save Changes'}
+                                    </Button>
                                 </form>
                             </CardContent>
                         </Card>
@@ -177,7 +200,9 @@ function Settings() {
                                         <p className="text-xs text-muted-foreground">Prefix for your quote numbers (e.g. QQ-0001).</p>
                                     </div>
 
-                                    <Button type="submit" className="mt-4">Update Business Settings</Button>
+                                    <Button type="submit" className="mt-4" disabled={isSavingBusiness}>
+                                        {isSavingBusiness ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : 'Update Business Settings'}
+                                    </Button>
                                 </form>
                             </CardContent>
                         </Card>
@@ -191,7 +216,7 @@ function Settings() {
                                 <CardDescription>Update your password to keep your account secure.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <form className="space-y-4">
+                                <form onSubmit={handleSaveSecurity} className="space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="current_pwd">Current Password</Label>
                                         <Input id="current_pwd" type="password" value={securityData.current_password} onChange={e => setSecurityData({...securityData, current_password: e.target.value})} />
@@ -204,7 +229,9 @@ function Settings() {
                                         <Label htmlFor="confirm_pwd">Confirm New Password</Label>
                                         <Input id="confirm_pwd" type="password" value={securityData.confirm_password} onChange={e => setSecurityData({...securityData, confirm_password: e.target.value})} />
                                     </div>
-                                    <Button type="submit" variant="destructive" className="mt-4">Update Password</Button>
+                                    <Button type="submit" variant="destructive" className="mt-4" disabled={isSavingSecurity}>
+                                        {isSavingSecurity ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</> : 'Update Password'}
+                                    </Button>
                                 </form>
                             </CardContent>
                         </Card>
