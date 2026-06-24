@@ -41,7 +41,15 @@ class RegisterView(generics.CreateAPIView):
         
         validated_data = schema.validated_data
         serializer = self.get_serializer(data=validated_data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except DRFValidationError as e:
+            logger.warning(f"Registration failed during serializer validation: {str(e)}")
+            return Response(
+                {"error": "Registration failed. Please check your information and try again."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -61,7 +69,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         if not schema.is_valid():
             logger.warning(f"Login validation failed: {schema.errors}")
             return Response(
-                {"error": "Invalid credentials provided."},
+                {"error": "Incorrect email or password"},
                 status=status.HTTP_400_BAD_REQUEST
             )
             
@@ -80,7 +88,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         if attempts >= 5:
             if current_time - last_attempt < 900:
                 # Still locked out. Obfuscate by returning standard 401
-                return Response({"error": "Invalid credentials provided."}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"error": "Incorrect email or password"}, status=status.HTTP_401_UNAUTHORIZED)
             else:
                 # Lockout expired, reset counters
                 attempts = 0
@@ -93,7 +101,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             required_delay = delays[attempts]
             if current_time - last_attempt < required_delay:
                 # Still in progressive delay. Obfuscate by returning standard 401
-                return Response({"error": "Invalid credentials provided."}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"error": "Incorrect email or password"}, status=status.HTTP_401_UNAUTHORIZED)
                 
         serializer = self.get_serializer(data=validated_data)
         try:
@@ -128,7 +136,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     )
             
             return Response(
-                {"error": "Invalid credentials provided."},
+                {"error": "Incorrect email or password"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
@@ -288,7 +296,7 @@ class RequestPasswordResetView(views.APIView):
                 fail_silently=False,
             )
         
-        return Response({"message": "If an account with that email exists, we have sent a password reset link."})
+        return Response({"message": "If that email is registered, you'll receive a reset link"})
 
 class ConfirmPasswordResetView(views.APIView):
     permission_classes = (permissions.AllowAny,)
