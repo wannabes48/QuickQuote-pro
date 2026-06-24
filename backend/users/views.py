@@ -17,10 +17,57 @@ signer = TimestampSigner()
 
 User = get_user_model()
 
+from rest_framework.exceptions import ValidationError as DRFValidationError
+import logging
+from .validators import SignupSchema, LoginSchema
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+logger = logging.getLogger(__name__)
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        schema = SignupSchema(data=request.data)
+        if not schema.is_valid():
+            logger.warning(f"Registration validation failed: {schema.errors}")
+            return Response(
+                {"error": "Invalid input provided. Please check your details and try again."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        validated_data = schema.validated_data
+        serializer = self.get_serializer(data=validated_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        schema = LoginSchema(data=request.data)
+        if not schema.is_valid():
+            logger.warning(f"Login validation failed: {schema.errors}")
+            return Response(
+                {"error": "Invalid credentials provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        validated_data = schema.validated_data
+        serializer = self.get_serializer(data=validated_data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            logger.warning(f"Login authentication failed: {str(e)}")
+            return Response(
+                {"error": "Invalid credentials provided."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
