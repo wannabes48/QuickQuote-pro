@@ -32,10 +32,26 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-u7-87ls=g48-fj#16d)1f
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-ALLOWED_HOSTS.extend(['.onrender.com', '.vercel.app', '*']) # Fallback to prevent 400 errors if env var is missed
+ALLOWED_HOSTS.extend(['.onrender.com', '.vercel.app', '.quickquotepro.online', '*']) # Fallback to prevent 400 errors if env var is missed
 
 
 # Application definition
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'QuickQuote Pro <noreply@quickquotepro.online>')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -144,6 +160,8 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "https://your-frontend-domain.vercel.app",
         "https://quick-quote-pro-self.vercel.app",
+        "https://quickquotepro.online",
+        "https://www.quickquotepro.online",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]

@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useInView } from "framer-motion";
 import confetti from "canvas-confetti";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
+import { GoogleLogin } from '@react-oauth/google';
 
 // --- CONFETTI LOGIC ---
 const ConfettiContext = createContext({});
@@ -139,7 +140,7 @@ const modalSteps = [
 const TEXT_LOOP_INTERVAL = 1.5;
 
 export const AuthComponent = ({ mode = 'register' }) => {
-  const { login, register } = useContext(AuthContext);
+  const { login, register, googleLogin, requestPasswordReset } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -317,17 +318,18 @@ export const AuthComponent = ({ mode = 'register' }) => {
         <Confetti ref={confettiRef} manualstart className="fixed top-0 left-0 w-full h-full pointer-events-none z-[999]" />
         <Modal />
 
-        <Link to="/" className="fixed top-4 right-4 md:right-8 z-30 flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors backdrop-blur-md border border-white/10">
-            <ArrowLeft className="w-4 h-4 text-white" />
-            <span className="text-sm font-bold text-white">Back to Home</span>
-        </Link>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-md">
-                <AppLogo className="h-6 w-6" />
+        <div className="absolute top-0 left-0 w-full z-30 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-white/5 bg-zinc-950/20">
+            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+                <AppLogo className="h-5 w-5" />
               </div>
-              <AppLogoDarkText className="text-xl" />
-            </div>
+              <AppLogoDarkText className="text-lg" />
+            </Link>
+            <Link to="/" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors backdrop-blur-md border border-white/10">
+                <ArrowLeft className="w-4 h-4 text-white" />
+                <span className="text-sm font-bold text-white hidden sm:inline">Back to Home</span>
+            </Link>
+        </div>
 
         <div className={cn("flex w-full flex-1 h-full items-center justify-center", "relative overflow-hidden")}>
             <div className="absolute inset-0 z-0"><GradientBackground /></div>
@@ -335,7 +337,7 @@ export const AuthComponent = ({ mode = 'register' }) => {
                 <AnimatePresence mode="wait">
                     {authStep === "username" && <motion.div key="email-content" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center gap-4">
                         <BlurFade delay={0.25 * 1} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl md:text-6xl tracking-tight text-white whitespace-nowrap">{mode === 'login' ? 'Welcome Back' : 'Get Started'}</p></div></BlurFade>
-                        <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-white/60">{mode === 'login' ? 'Enter your username to sign in' : 'What should we call you?'}</p></BlurFade>
+                        <BlurFade delay={0.25 * 2}><p className="text-sm font-medium text-white/60">{mode === 'login' ? 'Enter your email or username' : 'What should we call you?'}</p></BlurFade>
                     </motion.div>}
                     {authStep === "email" && <motion.div key="email-title" initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }} className="w-full flex flex-col items-center text-center gap-4">
                         <BlurFade delay={0} className="w-full"><div className="text-center"><p className="font-sans font-extrabold text-4xl sm:text-5xl tracking-tight text-white whitespace-nowrap">Your Email</p></div></BlurFade>
@@ -363,7 +365,7 @@ export const AuthComponent = ({ mode = 'register' }) => {
                                     <div className="glass-input-wrap w-full"><div className="glass-input">
                                         <span className="glass-input-text-area"></span>
                                         <div className={cn( "relative z-10 flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out", username.length > 20 && authStep === 'username' ? "w-0 px-0" : "w-10 pl-2" )}><User className="h-5 w-5 text-white/80 flex-shrink-0" /></div>
-                                        <input type="text" placeholder={mode === 'login' ? "Username" : "Full Name / Username"} value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} className={cn("relative z-10 h-full w-0 flex-grow bg-transparent text-white placeholder:text-white/60 focus:outline-none transition-[padding-right] duration-300 ease-in-out delay-300", isUsernameValid && authStep === 'username' ? "pr-2" : "pr-0")} />
+                                        <input type="text" placeholder={mode === 'login' ? "Email or Username" : "Full Name / Username"} value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={handleKeyDown} className={cn("relative z-10 h-full w-0 flex-grow bg-transparent text-white placeholder:text-white/60 focus:outline-none transition-[padding-right] duration-300 ease-in-out delay-300", isUsernameValid && authStep === 'username' ? "pr-2" : "pr-0")} />
                                         <div className={cn( "relative z-10 flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out", isUsernameValid && authStep === 'username' ? "w-10 pr-1" : "w-0" )}><GlassButton type="button" onClick={handleProgressStep} size="icon" aria-label="Continue with username" contentClassName="text-white hover:text-white"><ArrowRight className="w-5 h-5" /></GlassButton></div>
                                     </div></div>
                                 </div>
@@ -402,7 +404,27 @@ export const AuthComponent = ({ mode = 'register' }) => {
                                             <div className={cn( "relative z-10 flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out", isPasswordValid ? "w-10 pr-1" : "w-0" )}><GlassButton type={mode === 'login' ? "submit" : "button"} onClick={mode === 'login' ? undefined : handleProgressStep} size="icon" aria-label="Submit password" contentClassName="text-white hover:text-white"><ArrowRight className="w-5 h-5" /></GlassButton></div>
                                         </div></div>
                                     </div>
-                                    <BlurFade inView delay={0.2}><button type="button" onClick={handleGoBack} className="mt-4 flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"><ArrowLeft className="w-4 h-4" /> Go back</button></BlurFade>
+                                    <BlurFade inView delay={0.2} className="flex items-center justify-between mt-4">
+                                        <button type="button" onClick={handleGoBack} className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"><ArrowLeft className="w-4 h-4" /> Go back</button>
+                                        {mode === 'login' && (
+                                            <button type="button" onClick={async () => {
+                                                if (!username.includes('@')) {
+                                                    setModalErrorMessage("Please go back and enter your email address to reset your password.");
+                                                    setModalStatus('error');
+                                                    return;
+                                                }
+                                                setModalStatus('loading');
+                                                try {
+                                                    await requestPasswordReset(username);
+                                                    setModalErrorMessage("If an account exists, a reset link has been sent to your email.");
+                                                    setModalStatus('error'); // Use error state just to show the message easily
+                                                } catch(err) {
+                                                    setModalErrorMessage("Failed to request password reset.");
+                                                    setModalStatus('error');
+                                                }
+                                            }} className="text-sm text-blue-400 hover:text-blue-300 transition-colors">Forgot password?</button>
+                                        )}
+                                    </BlurFade>
                                 </BlurFade>}
                             </AnimatePresence>
                         </motion.div>}
@@ -425,17 +447,75 @@ export const AuthComponent = ({ mode = 'register' }) => {
                 </form>
 
                 {authStep === 'username' && mode === 'login' && (
-                    <BlurFade delay={0.5}>
-                        <p className="text-sm text-white/60 mt-4">
-                            Don't have an account? <Link to="/register" className="text-white font-bold hover:underline">Sign up</Link>
-                        </p>
+                    <BlurFade delay={0.5} className="w-full">
+                        <div className="flex flex-col items-center gap-4 mt-4 w-full">
+                            <div className="w-full flex items-center gap-4">
+                                <div className="h-px bg-white/20 flex-grow"></div>
+                                <span className="text-xs text-white/40 uppercase tracking-widest">or continue with</span>
+                                <div className="h-px bg-white/20 flex-grow"></div>
+                            </div>
+                            <div className="rounded-full overflow-hidden scale-[1.02]">
+                                <GoogleLogin
+                                    onSuccess={credentialResponse => {
+                                        setModalStatus('loading');
+                                        googleLogin(credentialResponse.credential)
+                                            .then(() => {
+                                                setModalStatus('success');
+                                                setTimeout(() => navigate('/dashboard'), 2000);
+                                            })
+                                            .catch(err => {
+                                                setModalStatus('error');
+                                                setModalErrorMessage("Google Authentication Failed");
+                                            });
+                                    }}
+                                    onError={() => {
+                                        setModalStatus('error');
+                                        setModalErrorMessage("Google Authentication Failed");
+                                    }}
+                                    theme="filled_black"
+                                    shape="pill"
+                                />
+                            </div>
+                            <p className="text-sm text-white/60 mt-2">
+                                Don't have an account? <Link to="/register" className="text-white font-bold hover:underline">Sign up</Link>
+                            </p>
+                        </div>
                     </BlurFade>
                 )}
                 {authStep === 'username' && mode === 'register' && (
-                    <BlurFade delay={0.5}>
-                        <p className="text-sm text-white/60 mt-4">
-                            Already have an account? <Link to="/login" className="text-white font-bold hover:underline">Log in</Link>
-                        </p>
+                    <BlurFade delay={0.5} className="w-full">
+                        <div className="flex flex-col items-center gap-4 mt-4 w-full">
+                            <div className="w-full flex items-center gap-4">
+                                <div className="h-px bg-white/20 flex-grow"></div>
+                                <span className="text-xs text-white/40 uppercase tracking-widest">or continue with</span>
+                                <div className="h-px bg-white/20 flex-grow"></div>
+                            </div>
+                            <div className="rounded-full overflow-hidden scale-[1.02]">
+                                <GoogleLogin
+                                    onSuccess={credentialResponse => {
+                                        setModalStatus('loading');
+                                        googleLogin(credentialResponse.credential)
+                                            .then(() => {
+                                                setModalStatus('success');
+                                                setTimeout(() => navigate('/dashboard'), 2000);
+                                            })
+                                            .catch(err => {
+                                                setModalStatus('error');
+                                                setModalErrorMessage("Google Authentication Failed");
+                                            });
+                                    }}
+                                    onError={() => {
+                                        setModalStatus('error');
+                                        setModalErrorMessage("Google Authentication Failed");
+                                    }}
+                                    theme="filled_black"
+                                    shape="pill"
+                                />
+                            </div>
+                            <p className="text-sm text-white/60 mt-2">
+                                Already have an account? <Link to="/login" className="text-white font-bold hover:underline">Log in</Link>
+                            </p>
+                        </div>
                     </BlurFade>
                 )}
             </fieldset>

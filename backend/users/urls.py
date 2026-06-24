@@ -1,11 +1,14 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, ProfileView, SubscriptionUpgradeView, PayHeroCallbackView
+from .views import RegisterView, ProfileView, SubscriptionUpgradeView, PayHeroCallbackView, GoogleLoginView, RequestPasswordResetView, ConfirmPasswordResetView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/google/', GoogleLoginView.as_view(), name='google_login'),
+    path('password-reset/', RequestPasswordResetView.as_view(), name='password_reset_request'),
+    path('password-reset/confirm/', ConfirmPasswordResetView.as_view(), name='password_reset_confirm'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('subscription/upgrade/', SubscriptionUpgradeView.as_view(), name='subscription_upgrade'),
     path('subscription/callback/', PayHeroCallbackView.as_view(), name='subscription_callback'),

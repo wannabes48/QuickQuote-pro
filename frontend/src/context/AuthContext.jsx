@@ -35,6 +35,21 @@ export const AuthProvider = ({ children }) => {
         await login(userData.username, userData.password);
     };
 
+    const googleLogin = async (token) => {
+        const res = await api.post('users/login/google/', { token });
+        localStorage.setItem('access_token', res.data.access);
+        localStorage.setItem('refresh_token', res.data.refresh);
+        setUser(res.data.user);
+    };
+
+    const requestPasswordReset = async (email) => {
+        await api.post('users/password-reset/', { email });
+    };
+
+    const confirmPasswordReset = async (token, password) => {
+        await api.post('users/password-reset/confirm/', { token, password });
+    };
+
     const logout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -42,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, googleLogin, requestPasswordReset, confirmPasswordReset, register, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

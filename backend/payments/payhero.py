@@ -11,7 +11,7 @@ def initiate_payhero_stk_push(phone_number, amount, reference):
     
     # Callback URL should be your production URL
     # For now, we will construct a default or rely on the environment
-    base_url = getattr(settings, 'FRONTEND_URL', 'https://quickquote-pro.onrender.com')
+    base_url = getattr(settings, 'FRONTEND_URL', 'https://backend.quickquotepro.online')
     if base_url.endswith('/'):
         base_url = base_url[:-1]
     callback_url = f"{base_url}/api/users/subscription/callback/"

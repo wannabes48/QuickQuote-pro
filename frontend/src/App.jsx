@@ -17,6 +17,7 @@ import Pricing from './pages/Pricing';
 import Features from './pages/Features';
 import About from './pages/About';
 import FAQ from './pages/FAQ';
+import ResetPassword from './pages/ResetPassword';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -35,6 +36,7 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/quote/:token" element={<PublicQuote />} />
           
           <Route path="/features" element={<Features />} />

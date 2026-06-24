@@ -7,10 +7,11 @@ from .delivery_service import send_quote_email, send_quote_sms
 from .models import Quote, QuoteAuditLog
 from invoices.models import Invoice, InvoiceItem
 from .serializers import QuoteSerializer
+from users.permissions import CanCreateQuote
 
 class QuoteViewSet(viewsets.ModelViewSet):
     serializer_class = QuoteSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CanCreateQuote]
 
     def get_queryset(self):
         return Quote.objects.filter(customer__user=self.request.user)

@@ -77,8 +77,8 @@ export default function QuoteBuilder() {
             navigate('/quotes');
         } catch (error) {
             console.error("Failed to create quote", error);
-            if (error.response?.status === 403 && error.response?.data?.error) {
-                setUpgradeMessage(error.response.data.error);
+            if (error.response?.status === 403 && (error.response?.data?.detail || error.response?.data?.error)) {
+                setUpgradeMessage(error.response.data.detail || error.response.data.error);
                 setUpgradeModalOpen(true);
             } else {
                 addToast("Failed to create quote. Please check your inputs and try again.", "error");
