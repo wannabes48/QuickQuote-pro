@@ -3,6 +3,7 @@ import { useParams, Navigate, Link } from 'react-router-dom';
 import { industryData } from '../data/industries';
 import { PublicNavBar } from '@/components/ui/public-navbar';
 import Footer from '@/components/ui/footer';
+import { DottedSurface } from '@/components/ui/dotted-surface';
 import { ChevronDown, ArrowRight, CheckCircle2, Star, Download } from 'lucide-react';
 
 export default function IndustryLandingPage() {
@@ -23,7 +24,8 @@ export default function IndustryLandingPage() {
   }, [data]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-950 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-zinc-950 overflow-x-hidden relative">
+      <DottedSurface />
       <PublicNavBar />
 
       <main className="flex-grow flex flex-col relative z-10 w-full">
