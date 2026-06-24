@@ -12,6 +12,7 @@ django-cryptography==1.1
 djangorestframework==3.17.1
 djangorestframework_simplejwt==5.5.1
 gunicorn==26.0.0
+google-auth==2.30.0
 idna==3.18
 MarkupSafe==3.0.3
 packaging==26.2
