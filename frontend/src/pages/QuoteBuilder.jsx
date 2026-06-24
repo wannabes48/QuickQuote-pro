@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowLeft, Save, Briefcase, Paintbrush, Wrench, FileText } from 'lucide-react';
@@ -8,8 +8,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { PDFViewer } from '@react-pdf/renderer';
+import { QuotePDF } from '../components/QuotePDF';
+
+class PDFErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("PDF Render Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center h-full bg-red-50 text-red-600 p-6 rounded-lg text-center">
+          <div>
+            <p className="font-bold mb-2">Live Preview Failed to Load</p>
+            <p className="text-sm">There is an issue rendering the PDF preview.</p>
+            <p className="text-xs mt-4 text-red-400 font-mono text-left bg-red-100 p-2 rounded">{this.state.error?.toString()}</p>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function QuoteBuilder() {
+    const { user } = useContext(AuthContext);
     const { addToast } = useToast();
     const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
@@ -27,6 +60,9 @@ export default function QuoteBuilder() {
         quote_number: `Q-${Math.floor(Math.random() * 10000)}`,
         status: 'Draft',
         currency: 'KSh',
+        issue_date: new Date().toISOString().split('T')[0],
+        expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        discount: 0,
         notes: ''
     });
     const [items, setItems] = useState([]);
@@ -87,8 +123,10 @@ export default function QuoteBuilder() {
     };
 
     const subtotal = calculateSubtotal();
-    const vat = subtotal * 0.16;
-    const total = subtotal + vat;
+    const discountAmount = parseFloat(formData.discount) || 0;
+    const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+    const vat = discountedSubtotal * 0.16;
+    const total = discountedSubtotal + vat;
 
     // --- TEMPLATE SELECTION VIEW ---
     if (!isTemplateSelected) {
@@ -158,16 +196,17 @@ export default function QuoteBuilder() {
 
     // --- QUOTE BUILDER VIEW ---
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
-            <div className="flex items-center space-x-4">
-                <button onClick={() => setIsTemplateSelected(false)} className="p-2 bg-white border border-gray-border rounded-lg hover:bg-gray-50 transition-colors">
-                    <ArrowLeft className="w-5 h-5 text-gray-500" />
-                </button>
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-dark tracking-tight">Create Quote</h1>
+        <div className="max-w-[1600px] mx-auto flex flex-col xl:flex-row gap-8">
+            {/* Form Section */}
+            <div className="flex-1 max-w-4xl">
+                <div className="flex items-center space-x-4 mb-6">
+                    <button onClick={() => setIsTemplateSelected(false)} className="p-2 bg-white border border-gray-border rounded-lg hover:bg-gray-50 transition-colors">
+                        <ArrowLeft className="w-5 h-5 text-gray-500" />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-dark tracking-tight">Create Quote</h1>
+                    </div>
                 </div>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-border">
                     <h3 className="text-lg font-bold text-gray-dark mb-6 border-b pb-2">Client Details</h3>
@@ -198,6 +237,16 @@ export default function QuoteBuilder() {
                                     { label: 'EUR (Euro)', value: 'EUR' }
                                 ]}
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
+                            <input type="date" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-700 bg-white"
+                                value={formData.issue_date} onChange={(e) => setFormData({...formData, issue_date: e.target.value})} />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                            <input type="date" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-700 bg-white"
+                                value={formData.expiry_date} onChange={(e) => setFormData({...formData, expiry_date: e.target.value})} />
                         </div>
                     </div>
                 </div>
@@ -253,6 +302,14 @@ export default function QuoteBuilder() {
                             <div className="flex justify-between text-gray-500">
                                 <span>Subtotal</span>
                                 <span>{formData.currency} {subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-gray-500">
+                                <span>Discount</span>
+                                <div className="flex items-center w-32 justify-end">
+                                    <span className="mr-2">{formData.currency}</span>
+                                    <input type="number" min="0" step="0.01" className="w-20 px-2 py-1 border border-gray-300 rounded text-right"
+                                        value={formData.discount} onChange={e => setFormData({...formData, discount: parseFloat(e.target.value) || 0})} />
+                                </div>
                             </div>
                             <div className="flex justify-between text-gray-500">
                                 <span>VAT (16%)</span>
@@ -316,6 +373,32 @@ export default function QuoteBuilder() {
                     </div>
                 </div>
             )}
+            </div>
+            
+            {/* Live Preview Section */}
+            <div className="hidden xl:block w-[600px] 2xl:w-[800px] sticky top-8 h-[calc(100vh-4rem)]">
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-border h-full flex flex-col">
+                    <h3 className="text-lg font-bold text-gray-dark mb-4 border-b pb-2">Live Preview</h3>
+                    <div className="flex-1 bg-gray-50 rounded-xl overflow-hidden border border-gray-200 relative">
+                        <PDFErrorBoundary>
+                            <PDFViewer width="100%" height="100%" className="border-0 absolute inset-0">
+                                <QuotePDF 
+                                    data={{
+                                        ...formData,
+                                        items: items,
+                                        subtotal: subtotal,
+                                        discount: discountAmount,
+                                        vat: vat,
+                                        total: total,
+                                        customer: customers.find(c => c.id === parseInt(formData.customer)) || {}
+                                    }} 
+                                    businessProfile={user} 
+                                />
+                            </PDFViewer>
+                        </PDFErrorBoundary>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

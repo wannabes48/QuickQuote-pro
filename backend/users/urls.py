@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, ProfileView, SubscriptionUpgradeView, PayHeroCallbackView, GoogleLoginView, RequestPasswordResetView, ConfirmPasswordResetView
+from .views import RegisterView, ProfileView, SubscriptionUpgradeView, PayHeroCallbackView, GoogleLoginView, RequestPasswordResetView, ConfirmPasswordResetView, DashboardStatsView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -12,4 +12,5 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('subscription/upgrade/', SubscriptionUpgradeView.as_view(), name='subscription_upgrade'),
     path('subscription/callback/', PayHeroCallbackView.as_view(), name='subscription_callback'),
+    path('dashboard-stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
 ]

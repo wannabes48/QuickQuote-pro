@@ -13,7 +13,7 @@ class QuoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Quote
-        fields = ['id', 'quote_number', 'customer', 'customer_details', 'status', 'currency', 'subtotal', 'vat', 'total', 'notes', 'public_token', 'signature_data', 'signed_at', 'created_at', 'items']
+        fields = ['id', 'quote_number', 'customer', 'customer_details', 'status', 'issue_date', 'expiry_date', 'currency', 'subtotal', 'discount', 'vat', 'total', 'notes', 'public_token', 'signature_data', 'signed_at', 'created_at', 'items']
         read_only_fields = ['subtotal', 'vat', 'total', 'public_token', 'signature_data', 'signed_at', 'created_at']
 
     def get_customer_details(self, obj):

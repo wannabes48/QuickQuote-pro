@@ -3,46 +3,39 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../api';
 import { FileText, Users, DollarSign, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 export default function Dashboard() {
     const { user } = useContext(AuthContext);
-    const [stats, setStats] = useState({ quotesCount: 0, customersCount: 0, revenueByCurrency: {} });
+    const [stats, setStats] = useState(null);
     const [recentQuotes, setRecentQuotes] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [quotesRes, customersRes] = await Promise.all([
-                    api.get('quotes/'),
-                    api.get('customers/')
+                const [statsRes, quotesRes] = await Promise.all([
+                    api.get('users/dashboard-stats/'),
+                    api.get('quotes/')
                 ]);
                 
-                const quotes = quotesRes.data;
-                const customers = customersRes.data;
-                
-                const revenueByCurrency = quotes
-                    .filter(q => q.status === 'Accepted')
-                    .reduce((acc, q) => {
-                        const currency = q.currency || 'KSh';
-                        acc[currency] = (acc[currency] || 0) + parseFloat(q.total || 0);
-                        return acc;
-                    }, {});
-                
-                setStats({
-                    quotesCount: quotes.length,
-                    customersCount: customers.length,
-                    revenueByCurrency: revenueByCurrency
-                });
+                setStats(statsRes.data);
                 
                 // Sort by ID descending (newest first)
-                const sortedQuotes = quotes.sort((a, b) => b.id - a.id);
+                const sortedQuotes = quotesRes.data.sort((a, b) => b.id - a.id);
                 setRecentQuotes(sortedQuotes.slice(0, 5));
             } catch (error) {
                 console.error("Failed to load dashboard data", error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
     }, []);
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Loading dashboard...</p></div>;
+    }
 
     return (
         <div className="max-w-7xl mx-auto space-y-8">
@@ -59,6 +52,50 @@ export default function Dashboard() {
                 </div>
             </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Monthly Revenue Chart */}
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-border">
+                    <h3 className="text-lg font-bold text-gray-dark mb-6">Monthly Revenue</h3>
+                    <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={stats.monthly_revenue || []}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} />
+                                <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280'}} tickFormatter={(value) => `${value >= 1000 ? (value/1000) + 'k' : value}`} />
+                                <RechartsTooltip 
+                                    cursor={{fill: '#F3F4F6'}} 
+                                    contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                                />
+                                <Bar dataKey="revenue" fill="#2563EB" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Conversion Rate */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex flex-col items-center justify-center text-center">
+                    <h3 className="text-lg font-bold text-gray-dark mb-2 w-full text-left">Quote Conversion Rate</h3>
+                    <p className="text-sm text-gray-500 w-full text-left mb-8">Percentage of quotes approved</p>
+                    
+                    <div className="relative w-48 h-48 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="96" cy="96" r="88" stroke="#F3F4F6" strokeWidth="16" fill="none" />
+                            <circle cx="96" cy="96" r="88" stroke="#10B981" strokeWidth="16" fill="none" 
+                                strokeDasharray={`${2 * Math.PI * 88}`}
+                                strokeDashoffset={`${2 * Math.PI * 88 * (1 - (stats.conversion_rate / 100))}`}
+                                className="transition-all duration-1000 ease-out"
+                                strokeLinecap="round"
+                            />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className="text-4xl font-extrabold text-gray-dark">{stats.conversion_rate}%</span>
+                        </div>
+                    </div>
+                    <p className="mt-8 text-gray-500 font-medium">Keep it up! Industry average is 35%.</p>
+                </div>
+            </div>
+
+            {/* Overview Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex items-center">
                     <div className="p-4 bg-blue-50 rounded-xl">
@@ -66,34 +103,55 @@ export default function Dashboard() {
                     </div>
                     <div className="ml-5">
                         <p className="text-sm font-medium text-gray-500 mb-1">Total Quotes</p>
-                        <h3 className="text-2xl font-bold text-gray-dark">{stats.quotesCount}</h3>
+                        <h3 className="text-2xl font-bold text-gray-dark">{stats.total_quotes}</h3>
                     </div>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex items-center">
                     <div className="p-4 bg-green-50 rounded-xl">
-                        <Users className="w-8 h-8 text-secondary" />
+                        <FileText className="w-8 h-8 text-secondary" />
                     </div>
                     <div className="ml-5">
-                        <p className="text-sm font-medium text-gray-500 mb-1">Customers</p>
-                        <h3 className="text-2xl font-bold text-gray-dark">{stats.customersCount}</h3>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Approved Quotes</p>
+                        <h3 className="text-2xl font-bold text-gray-dark">{stats.accepted_quotes}</h3>
                     </div>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex items-center">
                     <div className="p-4 bg-orange-50 rounded-xl">
-                        <DollarSign className="w-8 h-8 text-accent" />
+                        <FileText className="w-8 h-8 text-accent" />
                     </div>
                     <div className="ml-5">
-                        <p className="text-sm font-medium text-gray-500 mb-1">Accepted Revenue</p>
+                        <p className="text-sm font-medium text-gray-500 mb-1">Pending Quotes</p>
+                        <h3 className="text-2xl font-bold text-gray-dark">{stats.pending_quotes}</h3>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex items-center">
+                    <div className="p-4 bg-purple-50 rounded-xl">
+                        <FileText className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <div className="ml-5">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Invoices Sent</p>
+                        <h3 className="text-2xl font-bold text-gray-dark">{stats.invoices_sent}</h3>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex items-center">
+                    <div className="p-4 bg-emerald-50 rounded-xl">
+                        <DollarSign className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <div className="ml-5">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
                         <h3 className="text-2xl font-bold text-gray-dark">
-                            {Object.entries(stats.revenueByCurrency).length > 0 ? (
-                                Object.entries(stats.revenueByCurrency).map(([currency, amount], index) => (
-                                    <div key={currency} className={index > 0 ? "text-lg mt-1" : ""}>
-                                        {currency} {amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
-                                    </div>
-                                ))
-                            ) : (
-                                "0.00"
-                            )}
+                            {user?.default_currency || 'KSh'} {stats.revenue.toLocaleString()}
+                        </h3>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-border flex items-center">
+                    <div className="p-4 bg-red-50 rounded-xl">
+                        <DollarSign className="w-8 h-8 text-red-600" />
+                    </div>
+                    <div className="ml-5">
+                        <p className="text-sm font-medium text-gray-500 mb-1">Outstanding</p>
+                        <h3 className="text-2xl font-bold text-gray-dark">
+                            {user?.default_currency || 'KSh'} {stats.outstanding_payments.toLocaleString()}
                         </h3>
                     </div>
                 </div>

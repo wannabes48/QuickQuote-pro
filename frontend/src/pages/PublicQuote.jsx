@@ -138,6 +138,12 @@ export default function PublicQuote() {
                                     <span>Subtotal</span>
                                     <span className="font-medium">{quote.currency} {parseFloat(quote.subtotal).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                                 </div>
+                                {quote.discount && parseFloat(quote.discount) > 0 && (
+                                    <div className="flex justify-between text-green-600">
+                                        <span>Discount</span>
+                                        <span className="font-medium">-{quote.currency} {parseFloat(quote.discount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between text-gray-600">
                                     <span>VAT (16%)</span>
                                     <span className="font-medium">{quote.currency} {parseFloat(quote.vat).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>

@@ -9,6 +9,11 @@ class User(AbstractUser):
         ('Business', 'Business'),
     ]
     company_name = models.CharField(max_length=255, blank=True, null=True)
+    company_logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    company_email = models.EmailField(blank=True, null=True)
+    company_address = models.TextField(blank=True, null=True)
+    tax_number = models.CharField(max_length=50, blank=True, null=True)
+    default_currency = models.CharField(max_length=10, default='KSh')
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     subscription_tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='Free')
     subscription_end_date = models.DateTimeField(null=True, blank=True)

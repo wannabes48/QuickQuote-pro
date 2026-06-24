@@ -134,13 +134,29 @@ function Settings() {
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleSaveBusiness} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="company_name">Company Name</Label>
-                                        <Input id="company_name" placeholder="e.g. Acme Corp" value={businessData.company_name} onChange={e => setBusinessData({...businessData, company_name: e.target.value})} />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="company_name">Company Name</Label>
+                                            <Input id="company_name" placeholder="e.g. Acme Corp" value={businessData.company_name} onChange={e => setBusinessData({...businessData, company_name: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="company_logo">Company Logo</Label>
+                                            <Input id="company_logo" type="file" accept="image/*" onChange={e => setBusinessData({...businessData, company_logo: e.target.files[0]})} />
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="address">Business Address</Label>
                                         <Textarea id="address" placeholder="123 Business St..." value={businessData.address} onChange={e => setBusinessData({...businessData, address: e.target.value})} />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="company_email">Company Email</Label>
+                                            <Input id="company_email" type="email" placeholder="billing@acmecorp.com" value={businessData.company_email || ''} onChange={e => setBusinessData({...businessData, company_email: e.target.value})} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="tax_number">Tax Number (KRA PIN / VAT)</Label>
+                                            <Input id="tax_number" placeholder="P000000000Z" value={businessData.tax_number || ''} onChange={e => setBusinessData({...businessData, tax_number: e.target.value})} />
+                                        </div>
                                     </div>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border mt-6">

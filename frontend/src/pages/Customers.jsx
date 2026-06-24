@@ -35,6 +35,16 @@ export default function Customers() {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this customer? This action cannot be undone.")) return;
+        try {
+            await api.delete(`customers/${id}/`);
+            fetchCustomers();
+        } catch (error) {
+            console.error("Failed to delete customer", error);
+        }
+    };
+
     if (loading) return <div className="p-8">Loading customers...</div>;
 
     return (
@@ -71,7 +81,7 @@ export default function Customers() {
                                 <td className="px-6 py-4 text-gray-500">{customer.email || '-'}</td>
                                 <td className="px-6 py-4 text-right">
                                     <button className="text-gray-400 hover:text-primary mr-4 transition-colors"><Edit2 className="w-4 h-4" /></button>
-                                    <button className="text-gray-400 hover:text-danger transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                    <button onClick={() => handleDelete(customer.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                                 </td>
                             </tr>
                         ))}

@@ -202,3 +202,64 @@ class ConfirmPasswordResetView(views.APIView):
             return Response({"error": "Invalid password reset link."}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({"error": "User no longer exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+from django.db.models import Sum, Count, Q
+from django.db.models.functions import TruncMonth
+from quotes.models import Quote
+from invoices.models import Invoice
+from dateutil.relativedelta import relativedelta
+
+class DashboardStatsView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        
+        # Quotes stats
+        quotes = Quote.objects.filter(customer__user=user)
+        total_quotes = quotes.count()
+        accepted_quotes = quotes.filter(status__in=['Accepted', 'Approved']).count()
+        pending_quotes = quotes.filter(status__in=['Draft', 'Sent', 'Viewed']).count()
+        
+        conversion_rate = (accepted_quotes / total_quotes * 100) if total_quotes > 0 else 0
+        
+        # Invoices stats
+        invoices = Invoice.objects.filter(customer__user=user)
+        invoices_sent = invoices.count()
+        
+        # Revenue (Paid invoices)
+        revenue = invoices.filter(status='Paid').aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+        
+        # Outstanding (Unpaid or Partially Paid)
+        outstanding = invoices.filter(status__in=['Unpaid', 'Partially Paid']).aggregate(Sum('total'))['total__sum'] or 0
+        outstanding_paid = invoices.filter(status__in=['Unpaid', 'Partially Paid']).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+        outstanding_balance = outstanding - outstanding_paid
+        
+        # Monthly Revenue Chart (Last 6 months)
+        six_months_ago = timezone.now() - relativedelta(months=6)
+        monthly_revenue = invoices.filter(
+            status='Paid', 
+            created_at__gte=six_months_ago
+        ).annotate(
+            month=TruncMonth('created_at')
+        ).values('month').annotate(
+            total=Sum('amount_paid')
+        ).order_by('month')
+        
+        chart_data = []
+        for entry in monthly_revenue:
+            chart_data.append({
+                'month': entry['month'].strftime('%b %Y'),
+                'revenue': float(entry['total'])
+            })
+            
+        return Response({
+            'total_quotes': total_quotes,
+            'accepted_quotes': accepted_quotes,
+            'pending_quotes': pending_quotes,
+            'invoices_sent': invoices_sent,
+            'revenue': float(revenue),
+            'outstanding_payments': float(outstanding_balance),
+            'conversion_rate': round(conversion_rate, 1),
+            'monthly_revenue': chart_data
+        })

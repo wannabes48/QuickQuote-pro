@@ -9,14 +9,18 @@ class Quote(models.Model):
         ('Draft', 'Draft'),
         ('Sent', 'Sent'),
         ('Viewed', 'Viewed'),
-        ('Accepted', 'Accepted'),
+        ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
+        ('Expired', 'Expired'),
     ]
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='quotes')
     quote_number = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
+    issue_date = models.DateField(blank=True, null=True)
+    expiry_date = models.DateField(blank=True, null=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     vat = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     currency = models.CharField(max_length=10, default='KSh')
