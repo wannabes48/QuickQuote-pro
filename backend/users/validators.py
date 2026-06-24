@@ -34,5 +34,5 @@ class SignupSchema(serializers.Serializer):
         return sanitize_text(value)
 
 class LoginSchema(serializers.Serializer):
-    email = serializers.EmailField()
+    username = serializers.CharField()
     password = serializers.CharField(min_length=1)

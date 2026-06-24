@@ -74,7 +74,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             )
             
         validated_data = schema.validated_data
-        email = validated_data['email']
+        email = validated_data.get('username') or validated_data.get('email')
         
         # --- Lockout & Progressive Delay Logic ---
         cache_key_attempts = f"login_attempts_{email}"
