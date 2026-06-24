@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
-from marketing.sitemaps import StaticViewSitemap
+from marketing.sitemaps import StaticViewSitemap, IndustrySitemap
 
 sitemaps = {
     'static': StaticViewSitemap,
+    'industry': IndustrySitemap,
 }
 
 urlpatterns = [

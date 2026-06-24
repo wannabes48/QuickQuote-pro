@@ -3,6 +3,11 @@
     { "source": "/", "destination": "https://backend.quickquotepro.online/" },
     { "source": "/features", "destination": "https://backend.quickquotepro.online/features" },
     { "source": "/pricing", "destination": "https://backend.quickquotepro.online/pricing" },
+    { "source": "/plumbers", "destination": "https://backend.quickquotepro.online/plumbers" },
+    { "source": "/electricians", "destination": "https://backend.quickquotepro.online/electricians" },
+    { "source": "/solar-installers", "destination": "https://backend.quickquotepro.online/solar-installers" },
+    { "source": "/painters", "destination": "https://backend.quickquotepro.online/painters" },
+    { "source": "/building-contractors", "destination": "https://backend.quickquotepro.online/building-contractors" },
     { "source": "/robots.txt", "destination": "https://backend.quickquotepro.online/robots.txt" },
     { "source": "/sitemap.xml", "destination": "https://backend.quickquotepro.online/sitemap.xml" },
     {
