@@ -1,5 +1,10 @@
 {
   "rewrites": [
+    { "source": "/", "destination": "https://backend.quickquotepro.online/" },
+    { "source": "/features", "destination": "https://backend.quickquotepro.online/features" },
+    { "source": "/pricing", "destination": "https://backend.quickquotepro.online/pricing" },
+    { "source": "/robots.txt", "destination": "https://backend.quickquotepro.online/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "https://backend.quickquotepro.online/sitemap.xml" },
     {
       "source": "/(.*)",
       "destination": "/index.html"

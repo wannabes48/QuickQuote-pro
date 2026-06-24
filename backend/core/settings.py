@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
@@ -68,6 +69,7 @@ INSTALLED_APPS = [
     'quotes',
     'invoices',
     'payments',
+    'marketing',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +89,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'marketing', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

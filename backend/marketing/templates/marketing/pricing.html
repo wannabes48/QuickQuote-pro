@@ -1,0 +1,69 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Pricing - Contractor Quotation Software | QuickQuote Pro{% endblock %}
+{% block meta_description %}Simple, transparent pricing for contractor quotation software. Start for free and upgrade as your business grows.{% endblock %}
+
+{% block content %}
+<div class="relative bg-zinc-950 overflow-hidden min-h-screen pt-20 pb-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h1 class="text-5xl font-extrabold text-white tracking-tight mb-4">
+                Simple, transparent <span class="text-blue-400">pricing</span>
+            </h1>
+            <p class="text-xl text-white/60">No hidden fees. Cancel anytime.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <!-- Free Tier -->
+            <div class="bg-zinc-900 border border-white/10 rounded-3xl p-8 flex flex-col">
+                <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
+                <p class="text-white/60 mb-6">Perfect for testing the waters.</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold text-white">KSh 0</span><span class="text-white/50">/mo</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> Up to 5 Quotes</li>
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> Basic PDF Export</li>
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> Email Support</li>
+                </ul>
+                <a href="/register" class="w-full text-center py-3 px-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors">Get Started</a>
+            </div>
+
+            <!-- Starter Tier -->
+            <div class="bg-blue-600 border border-blue-500 rounded-3xl p-8 flex flex-col relative transform md:-translate-y-4 shadow-2xl shadow-blue-900/50">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-blue-900 font-bold px-4 py-1 rounded-full text-sm">
+                    Most Popular
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Starter</h3>
+                <p class="text-blue-200 mb-6">For independent contractors and fundis.</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold text-white">KSh 499</span><span class="text-blue-200">/mo</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center text-white"><span class="text-blue-200 mr-3">✓</span> Unlimited Quotes</li>
+                    <li class="flex items-center text-white"><span class="text-blue-200 mr-3">✓</span> Unlimited Invoices</li>
+                    <li class="flex items-center text-white"><span class="text-blue-200 mr-3">✓</span> Custom Branding</li>
+                    <li class="flex items-center text-white"><span class="text-blue-200 mr-3">✓</span> Priority Support</li>
+                </ul>
+                <a href="/register" class="w-full text-center py-3 px-4 bg-white hover:bg-gray-100 text-blue-900 font-bold rounded-xl transition-colors shadow-lg">Start 14-Day Free Trial</a>
+            </div>
+
+            <!-- Professional Tier -->
+            <div class="bg-zinc-900 border border-white/10 rounded-3xl p-8 flex flex-col">
+                <h3 class="text-2xl font-bold text-white mb-2">Professional</h3>
+                <p class="text-white/60 mb-6">For growing agencies and teams.</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold text-white">KSh 1,500</span><span class="text-white/50">/mo</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> Everything in Starter</li>
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> Advanced Analytics</li>
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> API Access</li>
+                    <li class="flex items-center text-white/80"><span class="text-emerald-400 mr-3">✓</span> M-Pesa Integration</li>
+                </ul>
+                <a href="/register" class="w-full text-center py-3 px-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors">Start 14-Day Free Trial</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

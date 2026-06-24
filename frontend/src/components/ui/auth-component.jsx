@@ -319,16 +319,16 @@ export const AuthComponent = ({ mode = 'register' }) => {
         <Modal />
 
         <div className="absolute top-0 left-0 w-full z-30 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-white/5 bg-zinc-950/20">
-            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10">
                 <AppLogo className="h-5 w-5" />
               </div>
               <AppLogoDarkText className="text-lg" />
-            </Link>
-            <Link to="/" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors backdrop-blur-md border border-white/10">
+            </a>
+            <a href="/" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors backdrop-blur-md border border-white/10">
                 <ArrowLeft className="w-4 h-4 text-white" />
                 <span className="text-sm font-bold text-white hidden sm:inline">Back to Home</span>
-            </Link>
+            </a>
         </div>
 
         <div className={cn("flex w-full flex-1 h-full items-center justify-center", "relative overflow-hidden")}>
