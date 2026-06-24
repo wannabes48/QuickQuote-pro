@@ -18,6 +18,7 @@ import Features from './pages/Features';
 import About from './pages/About';
 import FAQ from './pages/FAQ';
 import ResetPassword from './pages/ResetPassword';
+import IndustryLandingPage from './pages/IndustryLandingPage';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -42,6 +43,7 @@ function App() {
           <Route path="/features" element={<Features />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/industries/:industryId" element={<IndustryLandingPage />} />
           
           {/* Authenticated Routes with Layout */}
           <Route element={<PrivateRoute><Layout /></PrivateRoute>}>

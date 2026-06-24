@@ -1,33 +1,40 @@
 import React from 'react';
 import { Zap, Droplet, Sun, Paintbrush, Hammer, HardHat, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const industries = [
   {
+    id: 'electricians',
     title: 'Electricians',
     desc: 'Generate precise electrical estimates and compliance certificates on the go.',
     icon: <Zap className="w-8 h-8 text-yellow-400" />
   },
   {
+    id: 'plumbers',
     title: 'Plumbers',
     desc: 'Quote for parts and labor instantly while inspecting plumbing issues on-site.',
     icon: <Droplet className="w-8 h-8 text-blue-400" />
   },
   {
+    id: 'solar-installers',
     title: 'Solar Installers',
     desc: 'Calculate complex solar panel installations, inverters, and battery requirements easily.',
     icon: <Sun className="w-8 h-8 text-orange-400" />
   },
   {
+    id: 'painters',
     title: 'Painters',
     desc: 'Provide accurate painting quotes based on square footage and material costs.',
     icon: <Paintbrush className="w-8 h-8 text-pink-400" />
   },
   {
+    id: 'carpenters',
     title: 'Carpenters',
     desc: 'Create detailed quotes for custom woodwork, cabinetry, and structural carpentry.',
     icon: <Hammer className="w-8 h-8 text-amber-600" />
   },
   {
+    id: 'general-contractors',
     title: 'General Contractors',
     desc: 'Manage large construction projects with multi-phase quoting and invoicing.',
     icon: <HardHat className="w-8 h-8 text-white" />
@@ -51,9 +58,9 @@ export function IndustriesSection() {
               <div className="mb-6">{ind.icon}</div>
               <h3 className="text-xl font-bold text-white mb-3">{ind.title}</h3>
               <p className="text-gray-400 flex-grow mb-6">{ind.desc}</p>
-              <button className="flex items-center text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors group">
+              <Link to={`/industries/${ind.id}`} className="inline-flex items-center text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors group">
                 Learn More <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
             </div>
           ))}
         </div>
