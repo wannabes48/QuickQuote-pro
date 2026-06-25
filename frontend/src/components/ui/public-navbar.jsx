@@ -8,11 +8,9 @@ export function PublicNavBar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center">
-            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm shrink-0">
-              <AppLogo className="h-7 w-7 sm:h-8 sm:w-8" />
+            <div className="bg-white px-3 py-1.5 rounded-lg shrink-0">
+              <AppLogo className="h-8 w-auto sm:h-10" />
             </div>
-            <AppLogoDarkText className="hidden sm:flex text-xl sm:text-2xl ml-3 drop-shadow-md text-white" />
-            <span className="sm:hidden ml-2 font-extrabold text-white text-lg tracking-tight">QQP</span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">

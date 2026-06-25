@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContext';
 import { Loader, PartyPopper, AlertCircle, ArrowRight } from 'lucide-react';
-import { AppLogoDarkText } from '@/components/ui/logo';
+import { AppLogo } from '@/components/ui/logo';
 
 export default function ResetPassword() {
     const [searchParams] = useSearchParams();
@@ -49,7 +49,7 @@ export default function ResetPassword() {
 
     return (
         <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="absolute top-8 left-8"><AppLogoDarkText /></div>
+            <div className="absolute top-8 left-8"><AppLogo className="h-10 w-auto" /></div>
             <div className="z-10 bg-zinc-900/50 p-8 rounded-2xl border border-white/10 w-full max-w-md shadow-2xl backdrop-blur-md">
                 <h2 className="text-3xl font-extrabold text-white mb-2 text-center">Reset Password</h2>
                 <p className="text-white/60 text-center mb-8">Enter your new password below.</p>

@@ -44,7 +44,7 @@ export default function Layout() {
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                         </button>
-                        <AppLogo className="h-7 w-7" />
+                        <AppLogo className="h-8 w-auto sm:h-10" />
                         <AppLogoText className="text-lg hidden xs:block" />
                     </div>
                     <div className="flex items-center gap-3">
@@ -89,7 +89,7 @@ export default function Layout() {
                         >
                             <div className="p-4 flex items-center justify-between border-b border-gray-100 bg-white/50">
                                 <div className="flex items-center gap-2">
-                                    <AppLogo className="h-8 w-8" />
+                                    <AppLogo className="h-10 w-auto sm:h-12" />
                                     <AppLogoText className="text-xl" />
                                 </div>
                                 <button 

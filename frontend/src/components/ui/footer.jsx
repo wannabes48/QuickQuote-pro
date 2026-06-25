@@ -41,7 +41,7 @@ const data = {
     name: 'QuickQuote Pro',
     description:
       'Generate branded quotations, send them securely via email or SMS, and track customer responses from one simple dashboard.',
-    logo: <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm inline-flex items-center justify-center"><AppLogo className="h-6 w-6" /></div>,
+    logo: <div className="bg-white px-3 py-1.5 rounded-lg inline-flex items-center justify-center"><AppLogo className="h-8 w-auto sm:h-10" /></div>,
   },
 };
 
@@ -85,9 +85,8 @@ export default function Footer() {
       <div className="mx-auto max-w-screen-xl px-4 pt-16 pb-6 sm:px-6 lg:px-8 lg:pt-24 text-white">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div>
-            <div className="flex justify-center gap-3 sm:justify-start items-center">
+            <div className="flex justify-center sm:justify-start items-center">
               {data.company.logo}
-              <AppLogoDarkText className="text-2xl" />
             </div>
 
             <p className="mt-6 max-w-md text-center leading-relaxed sm:max-w-xs sm:text-left text-white/60">

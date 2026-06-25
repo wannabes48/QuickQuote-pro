@@ -78,7 +78,7 @@ export default function PublicQuote() {
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-10">
                     <div className="flex items-center justify-center space-x-3 mb-8 sm:mb-4">
-                        <AppLogo className="h-10 w-10" />
+                        <AppLogo className="h-12 w-auto sm:h-16" />
                         <AppLogoText className="text-2xl" showTagline />
                     </div>
                     <p className="mt-2 text-gray-500">Review your quotation and sign below to proceed.</p>
