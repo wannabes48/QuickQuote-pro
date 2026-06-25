@@ -346,7 +346,7 @@ class DashboardStatsView(views.APIView):
         invoices_sent = invoices.count()
         
         # Revenue (Paid invoices)
-        revenue = invoices.filter(status='Paid').aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+        revenue = invoices.filter(status__in=['Paid', 'Partially Paid']).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
         
         # Outstanding (Unpaid or Partially Paid)
         outstanding = invoices.filter(status__in=['Unpaid', 'Partially Paid']).aggregate(Sum('total'))['total__sum'] or 0
@@ -356,7 +356,7 @@ class DashboardStatsView(views.APIView):
         # Monthly Revenue Chart (Last 6 months)
         six_months_ago = timezone.now() - relativedelta(months=6)
         monthly_revenue = invoices.filter(
-            status='Paid', 
+            status__in=['Paid', 'Partially Paid'],
             created_at__gte=six_months_ago
         ).annotate(
             month=TruncMonth('created_at')
