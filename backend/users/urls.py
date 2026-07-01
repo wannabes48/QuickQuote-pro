@@ -3,7 +3,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RegisterView, ProfileView, SubscriptionUpgradeView, 
     PayHeroCallbackView, GoogleLoginView, RequestPasswordResetView, 
-    ConfirmPasswordResetView, DashboardStatsView, CustomTokenObtainPairView
+    ConfirmPasswordResetView, DashboardStatsView, CustomTokenObtainPairView,
+    StripeWebhookView
 )
 
 urlpatterns = [
@@ -16,5 +17,6 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('subscription/upgrade/', SubscriptionUpgradeView.as_view(), name='subscription_upgrade'),
     path('subscription/callback/', PayHeroCallbackView.as_view(), name='subscription_callback'),
+    path('subscription/webhook/stripe/', StripeWebhookView.as_view(), name='stripe-webhook'),
     path('dashboard-stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
 ]

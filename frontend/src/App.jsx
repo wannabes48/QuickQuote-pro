@@ -19,6 +19,7 @@ import About from './pages/About';
 import FAQ from './pages/FAQ';
 import ResetPassword from './pages/ResetPassword';
 import IndustryLandingPage from './pages/IndustryLandingPage';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -53,6 +54,7 @@ function App() {
             <Route path="/quotes/new" element={<QuoteBuilder />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
           </Route>
         </Routes>
       </BrowserRouter>

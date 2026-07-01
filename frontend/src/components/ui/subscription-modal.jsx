@@ -1,27 +1,34 @@
 import React, { useState } from 'react';
-import { X, CreditCard } from 'lucide-react';
+import { X, CreditCard, Smartphone } from 'lucide-react';
 import api from '../../api';
 import { useToast } from '../../context/ToastContext';
 
 export function SubscriptionModal({ isOpen, onClose, tier }) {
     const { addToast } = useToast();
     const [phone, setPhone] = useState('');
+    const [method, setMethod] = useState('mpesa'); // 'mpesa' or 'stripe'
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!phone) return;
+        if (method === 'mpesa' && !phone) return;
         
         setIsSubmitting(true);
         try {
-            await api.post('users/subscription/upgrade/', {
+            const response = await api.post('users/subscription/upgrade/', {
                 tier: tier,
-                phone_number: phone
+                method: method,
+                phone_number: method === 'mpesa' ? phone : undefined
             });
-            addToast("M-Pesa prompt sent! Please check your phone to complete the upgrade.", "success");
-            onClose();
+            
+            if (method === 'stripe') {
+                window.location.href = response.data.checkout_url;
+            } else {
+                addToast("M-Pesa prompt sent! Please check your phone to complete the upgrade.", "success");
+                onClose();
+            }
         } catch (error) {
             addToast(error.response?.data?.error || "Failed to initiate payment.", "error");
         } finally {
@@ -45,22 +52,49 @@ export function SubscriptionModal({ isOpen, onClose, tier }) {
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        <button
+                            type="button"
+                            onClick={() => setMethod('mpesa')}
+                            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${method === 'mpesa' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-300'}`}
+                        >
+                            <Smartphone className="w-8 h-8 mb-2" />
+                            <span className="font-semibold text-sm">M-Pesa</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMethod('stripe')}
+                            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${method === 'stripe' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 hover:border-indigo-300'}`}
+                        >
+                            <CreditCard className="w-8 h-8 mb-2" />
+                            <span className="font-semibold text-sm">Card</span>
+                        </button>
+                    </div>
+
                     <div className="space-y-4">
-                        <p className="text-sm text-gray-500">
-                            Enter your Safaricom phone number to receive an M-Pesa STK push. Once you enter your PIN, your account will be upgraded instantly.
-                        </p>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">M-Pesa Phone Number</label>
-                            <input 
-                                type="text" 
-                                required
-                                placeholder="e.g. 0712345678" 
-                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                autoFocus
-                            />
-                        </div>
+                        {method === 'mpesa' ? (
+                            <>
+                                <p className="text-sm text-gray-500">
+                                    Enter your Safaricom phone number to receive an M-Pesa STK push. Once you enter your PIN, your account will be upgraded instantly.
+                                </p>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">M-Pesa Phone Number</label>
+                                    <input 
+                                        type="text" 
+                                        required
+                                        placeholder="e.g. 0712345678" 
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        autoFocus
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            <p className="text-sm text-gray-500">
+                                You will be securely redirected to Stripe to complete your credit card payment. Your tier will be instantly upgraded upon success.
+                            </p>
+                        )}
                     </div>
                     
                     <div className="flex gap-4 pt-2">
@@ -74,12 +108,12 @@ export function SubscriptionModal({ isOpen, onClose, tier }) {
                         <button 
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-1 px-4 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors shadow-md disabled:opacity-70 flex items-center justify-center"
+                            className={`flex-1 px-4 py-3 text-white font-semibold rounded-xl transition-colors shadow-md disabled:opacity-70 flex items-center justify-center ${method === 'mpesa' ? 'bg-green-600 hover:bg-green-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
                         >
                             {isSubmitting ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                             ) : (
-                                "Pay with M-Pesa"
+                                method === 'mpesa' ? "Pay with M-Pesa" : "Continue to Payment"
                             )}
                         </button>
                     </div>

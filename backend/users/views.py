@@ -152,6 +152,7 @@ class SubscriptionUpgradeView(views.APIView):
 
     def post(self, request):
         tier = request.data.get('tier')
+        method = request.data.get('method', 'mpesa')
         phone_number = request.data.get('phone_number')
         
         prices = {
@@ -166,33 +167,81 @@ class SubscriptionUpgradeView(views.APIView):
         amount = prices[tier]
         reference = f"SUB-{request.user.id}-{int(datetime.now().timestamp())}"
         
-        payment = SubscriptionPayment.objects.create(
-            user=request.user,
-            tier=tier,
-            amount=amount,
-            phone_number=phone_number,
-            reference=reference
-        )
-        
-        # Import dynamically to avoid circular imports or early app loading issues
-        from payments.payhero import initiate_payhero_stk_push
-        try:
-            payhero_resp = initiate_payhero_stk_push(phone_number, amount, reference)
-            payment.raw_response = str(payhero_resp)
+        if method == 'stripe':
+            import stripe
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            try:
+                origin = request.META.get('HTTP_ORIGIN', 'http://localhost:5173')
+                
+                payment = SubscriptionPayment.objects.create(
+                    user=request.user,
+                    tier=tier,
+                    amount=amount,
+                    phone_number='stripe',
+                    reference=reference
+                )
+                
+                checkout_session = stripe.checkout.Session.create(
+                    payment_method_types=['card'],
+                    line_items=[
+                        {
+                            'price_data': {
+                                'currency': 'usd',
+                                'unit_amount': amount,
+                                'product_data': {
+                                    'name': f'QuickQuote Pro - {tier} Tier (30 Days)',
+                                },
+                            },
+                            'quantity': 1,
+                        },
+                    ],
+                    metadata={
+                        'reference': reference,
+                        'user_id': request.user.id,
+                        'tier': tier
+                    },
+                    mode='payment',
+                    success_url=origin + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
+                    cancel_url=origin + '/settings',
+                )
+                
+                payment.raw_response = checkout_session.id
+                payment.save()
+                
+                return Response({"checkout_url": checkout_session.url})
+                
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        else:
+            if not phone_number:
+                return Response({"error": "Phone number is required for M-Pesa"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            payment = SubscriptionPayment.objects.create(
+                user=request.user,
+                tier=tier,
+                amount=amount,
+                phone_number=phone_number,
+                reference=reference
+            )
             
-            # PayHero returns success=True if STK push was initiated
-            if payhero_resp.get('success'):
-                payment.save()
-                return Response({"message": "STK Push initiated successfully. Please check your phone."})
-            else:
+            from payments.payhero import initiate_payhero_stk_push
+            try:
+                payhero_resp = initiate_payhero_stk_push(phone_number, amount, reference)
+                payment.raw_response = str(payhero_resp)
+                
+                if payhero_resp.get('success'):
+                    payment.save()
+                    return Response({"message": "STK Push initiated successfully. Please check your phone."})
+                else:
+                    payment.status = 'Failed'
+                    payment.save()
+                    return Response({"error": "Failed to initiate STK Push", "details": payhero_resp}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
                 payment.status = 'Failed'
+                payment.raw_response = str(e)
                 payment.save()
-                return Response({"error": "Failed to initiate STK Push", "details": payhero_resp}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            payment.status = 'Failed'
-            payment.raw_response = str(e)
-            payment.save()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PayHeroCallbackView(views.APIView):
     permission_classes = (permissions.AllowAny,)
@@ -211,7 +260,6 @@ class PayHeroCallbackView(views.APIView):
             
         if not reference:
             return Response({"error": "No reference provided"}, status=status.HTTP_400_BAD_REQUEST)
-            
         payment = SubscriptionPayment.objects.filter(reference=reference).first()
         if not payment:
             return Response({"error": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -381,3 +429,41 @@ class DashboardStatsView(views.APIView):
             'conversion_rate': round(conversion_rate, 1),
             'monthly_revenue': chart_data
         })
+
+class StripeWebhookView(views.APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        import stripe
+        payload = request.body
+        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+        
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+            )
+        except ValueError as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.SignatureVerificationError as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            reference = session.get('metadata', {}).get('reference')
+            
+            if reference:
+                payment = SubscriptionPayment.objects.filter(reference=reference).first()
+                if payment and payment.status != 'Completed':
+                    payment.status = 'Completed'
+                    payment.completed_at = timezone.now()
+                    payment.save()
+                    
+                    user = payment.user
+                    user.subscription_tier = payment.tier
+                    current_end = user.subscription_end_date or timezone.now()
+                    if current_end < timezone.now():
+                        current_end = timezone.now()
+                    user.subscription_end_date = current_end + timedelta(days=30)
+                    user.save()
+
+        return Response(status=status.HTTP_200_OK)

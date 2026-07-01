@@ -53,6 +53,11 @@ else:
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'QuickQuote Pro <noreply@quickquotepro.online>')
 
+# Stripe
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_replace_me')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_replace_me')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'QuickQuote Pro <noreply@quickquotepro.online>')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
