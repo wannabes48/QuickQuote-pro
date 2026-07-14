@@ -8,9 +8,7 @@ export function PublicNavBar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center">
-            <div className="bg-white px-3 py-1.5 rounded-lg shrink-0">
-              <AppLogo className="h-8 w-auto sm:h-10" />
-            </div>
+              <AppLogo className="h-8 w-auto sm:h-10 shrink-0" />
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">

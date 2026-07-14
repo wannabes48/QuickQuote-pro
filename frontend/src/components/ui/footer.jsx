@@ -41,7 +41,7 @@ const data = {
     name: 'QuickQuote Pro',
     description:
       'Generate branded quotations, send them securely via email or SMS, and track customer responses from one simple dashboard.',
-    logo: <div className="bg-white px-3 py-1.5 rounded-lg inline-flex items-center justify-center"><AppLogo className="h-8 w-auto sm:h-10" /></div>,
+    logo: <div className="inline-flex items-center justify-center"><AppLogo className="h-8 w-auto sm:h-10" /></div>,
   },
 };
 
