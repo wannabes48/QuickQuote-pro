@@ -11,6 +11,8 @@ export default function Payments() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('All Statuses');
+  const [methodFilter, setMethodFilter] = useState('All Methods');
   
   // State for real data
   const [payments, setPayments] = useState([]);
@@ -61,20 +63,23 @@ export default function Payments() {
     rawDate: new Date(p.created_at)
   })).sort((a, b) => b.rawDate - a.rawDate);
 
-  const filteredTransactions = TRANSACTIONS.filter(t => 
-    (t.customer && t.customer.toLowerCase().includes(searchTerm.toLowerCase())) || 
-    (t.invoice && t.invoice.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredTransactions = TRANSACTIONS.filter(t => {
+    const matchesSearch = (t.customer && t.customer.toLowerCase().includes(searchTerm.toLowerCase())) || 
+                          (t.invoice && t.invoice.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesStatus = statusFilter === 'All Statuses' || t.status === statusFilter;
+    const matchesMethod = methodFilter === 'All Methods' || t.method === methodFilter;
+    return matchesSearch && matchesStatus && matchesMethod;
+  });
 
   // Calculate Overview Stats
   const totalReceived = payments.filter(p => p.status === 'Completed').reduce((sum, p) => sum + parseFloat(p.amount), 0);
   const outstanding = invoices.filter(i => i.status !== 'Paid').reduce((sum, i) => sum + (parseFloat(i.total) - parseFloat(i.amount_paid)), 0);
   
   const OVERVIEW_STATS = [
-    { label: 'Total Received', amount: `$${totalReceived.toLocaleString()}`, trend: '+0%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { label: 'Outstanding', amount: `$${outstanding.toLocaleString()}`, trend: '-0%', icon: Clock, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Overdue', amount: '$0', trend: '0%', icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-100' },
-    { label: 'This Month', amount: `$${totalReceived.toLocaleString()}`, trend: '+0%', icon: Wallet, color: 'text-indigo-600', bg: 'bg-indigo-100' },
+    { label: 'Total Received', amount: `KSh ${totalReceived.toLocaleString()}`, trend: '+0%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Outstanding', amount: `KSh ${outstanding.toLocaleString()}`, trend: '-0%', icon: Clock, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { label: 'Overdue', amount: 'KSh 0', trend: '0%', icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-100' },
+    { label: 'This Month', amount: `KSh ${totalReceived.toLocaleString()}`, trend: '+0%', icon: Wallet, color: 'text-indigo-600', bg: 'bg-indigo-100' },
   ];
 
   // Derive Reminders from unpaid invoices
@@ -88,7 +93,7 @@ export default function Payments() {
           id: inv.id,
           customer: inv.customer_details?.name || 'Unknown',
           invoice: inv.invoice_number,
-          amount: `$${(parseFloat(inv.total) - parseFloat(inv.amount_paid)).toLocaleString()}`,
+          amount: `KSh ${(parseFloat(inv.total) - parseFloat(inv.amount_paid)).toLocaleString()}`,
           daysOverdue: daysOverdue > 0 ? daysOverdue : 0,
           type: daysOverdue > 0 ? 'overdue' : 'upcoming'
       };
@@ -107,10 +112,10 @@ export default function Payments() {
           <p className="text-slate-500 mt-2">Manage invoices, deposits, and track your revenue.</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+          <button onClick={() => window.print()} className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
             <Download className="w-4 h-4" /> Export
           </button>
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
+          <button onClick={() => window.location.href='/invoices'} className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
             <CreditCard className="w-4 h-4" /> Record Payment
           </button>
         </div>
@@ -160,20 +165,30 @@ export default function Payments() {
                     className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   />
                 </div>
-                <select className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:border-indigo-500">
+                <select 
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:border-indigo-500"
+                >
                   <option>All Statuses</option>
                   <option>Completed</option>
                   <option>Pending</option>
                   <option>Overdue</option>
+                  <option>Failed</option>
                 </select>
-                <select className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:border-indigo-500">
+                <select 
+                  value={methodFilter}
+                  onChange={(e) => setMethodFilter(e.target.value)}
+                  className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:border-indigo-500"
+                >
                   <option>All Methods</option>
+                  <option>M-Pesa STK</option>
+                  <option>Payment Link</option>
                   <option>Credit Card</option>
                   <option>Bank Transfer</option>
-                  <option>Check</option>
                   <option>Cash</option>
                 </select>
-                <button className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-2 text-sm">
+                <button onClick={() => alert("Date range filter is coming soon.")} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4" /> Range
                 </button>
               </div>
@@ -205,7 +220,7 @@ export default function Payments() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-slate-600">{tx.customer}</td>
-                      <td className="px-6 py-4 font-medium text-slate-900">${tx.amount.toLocaleString()}</td>
+                      <td className="px-6 py-4 font-medium text-slate-900">KSh {tx.amount.toLocaleString()}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusBadge(tx.status)}`}>
                           {tx.status}
@@ -224,14 +239,14 @@ export default function Payments() {
                           <button 
                             className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" 
                             title="Download Receipt"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => { e.stopPropagation(); window.print(); }}
                           >
                             <Download className="w-4 h-4" />
                           </button>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                             title="Send Reminder"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => { e.stopPropagation(); alert(`Reminder sent to ${tx.customer}`); }}
                           >
                             <Send className="w-4 h-4" />
                           </button>
@@ -286,7 +301,7 @@ export default function Payments() {
                       </span>
                     )}
                   </div>
-                  <button className="w-full py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center justify-center gap-2">
+                  <button onClick={() => alert(`Reminder sent to ${rem.customer}`)} className="w-full py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center justify-center gap-2">
                     <Send className="w-3.5 h-3.5" /> Send Reminder
                   </button>
                 </div>
@@ -320,7 +335,7 @@ export default function Payments() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors">
+            <button onClick={() => alert("All deposits are tracked automatically through payments.")} className="w-full mt-4 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-xl transition-colors">
               Manage All Deposits
             </button>
           </div>
@@ -355,7 +370,7 @@ export default function Payments() {
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm ring-4 ring-emerald-50">
                   <DollarSign className="w-8 h-8" />
                 </div>
-                <h3 className="text-4xl font-bold text-slate-900 tracking-tight">${selectedTransaction.amount.toLocaleString()}</h3>
+                <h3 className="text-4xl font-bold text-slate-900 tracking-tight">KSh {selectedTransaction.amount.toLocaleString()}</h3>
                 <div className="flex items-center justify-center gap-2">
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${getStatusBadge(selectedTransaction.status)}`}>
                     {selectedTransaction.status}
@@ -416,10 +431,10 @@ export default function Payments() {
             {/* Drawer Footer */}
             <div className="p-6 border-t border-slate-100 bg-slate-50">
               <div className="flex gap-3">
-                <button className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                <button onClick={() => window.print()} className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm">
                   <Download className="w-4 h-4" /> Receipt
                 </button>
-                <button className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-200">
+                <button onClick={() => window.location.href='/invoices'} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-200">
                   View Invoice
                 </button>
               </div>

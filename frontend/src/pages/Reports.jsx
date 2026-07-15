@@ -11,13 +11,13 @@ import {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
-const CustomTooltip = ({ active, payload, label, prefix = '$' }) => {
+const CustomTooltip = ({ active, payload, label, prefix = 'KSh ' }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-100">
         <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
         <p className="text-lg font-bold text-gray-900">
-          {prefix === '$' ? `$${payload[0].value.toLocaleString()}` : `${payload[0].value}%`}
+          {prefix === 'KSh ' ? `KSh ${payload[0].value.toLocaleString()}` : `${payload[0].value}%`}
         </p>
       </div>
     );
@@ -111,17 +111,16 @@ export default function Reports() {
     .map((name, idx) => ({
       id: idx,
       name,
-      revenue: `$${customerRevenue[name].revenue.toLocaleString()}`,
+      revenue: `KSh ${customerRevenue[name].revenue.toLocaleString()}`,
       rawRev: customerRevenue[name].revenue,
       invoices: customerRevenue[name].invoices.size
     }))
     .sort((a, b) => b.rawRev - a.rawRev)
     .slice(0, 4);
 
-  // 6. Insights
   const insights = [
-    `You have generated $${totalRevenue.toLocaleString()} in total revenue.`,
-    `There is $${outstandingAmount.toLocaleString()} currently outstanding across unpaid invoices.`,
+    `You have generated KSh ${totalRevenue.toLocaleString()} in total revenue.`,
+    `There is KSh ${outstandingAmount.toLocaleString()} currently outstanding across unpaid invoices.`,
     `Your quote conversion rate is ${conversionRate}% (${acceptedQuotes} accepted out of ${totalQuotes}).`,
     topCustomers.length > 0 ? `${topCustomers[0].name} is your top customer, generating ${topCustomers[0].revenue}.` : "No completed payments yet."
   ];
@@ -134,17 +133,16 @@ export default function Reports() {
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Reports & Analytics</h1>
           <p className="text-gray-500 mt-1">Detailed overview of your business performance and metrics.</p>
         </div>
-        <button className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-sm font-medium transition-all active:scale-95 flex items-center space-x-2">
+        <button onClick={() => window.print()} className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-sm font-medium transition-all active:scale-95 flex items-center space-x-2">
           <FileText size={18} />
           <span>Export Report</span>
         </button>
       </div>
 
-      {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Revenue" value={`$${totalRevenue.toLocaleString()}`} icon={<DollarSign size={20} />} trend="+0%" positive={true} />
-        <StatCard title="Profit" value={`$${totalRevenue.toLocaleString()}`} icon={<TrendingUp size={20} />} trend="+0%" positive={true} />
-        <StatCard title="Outstanding" value={`$${outstandingAmount.toLocaleString()}`} icon={<FileText size={20} />} trend="-0%" positive={true} />
+        <StatCard title="Revenue" value={`KSh ${totalRevenue.toLocaleString()}`} icon={<DollarSign size={20} />} trend="+0%" positive={true} />
+        <StatCard title="Profit" value={`KSh ${totalRevenue.toLocaleString()}`} icon={<TrendingUp size={20} />} trend="+0%" positive={true} />
+        <StatCard title="Outstanding" value={`KSh ${outstandingAmount.toLocaleString()}`} icon={<FileText size={20} />} trend="-0%" positive={true} />
         <StatCard title="Conversion Rate" value={`${conversionRate}%`} icon={<Activity size={20} />} trend="+0%" positive={true} />
       </div>
 
@@ -157,7 +155,7 @@ export default function Reports() {
               <BarChart data={revenueData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `KSh ${value}`} />
                 <Tooltip content={<CustomTooltip />} cursor={{fill: '#f3f4f6'}} />
                 <Bar dataKey="revenue" fill="#3b82f6" radius={[6, 6, 0, 0]} maxBarSize={50} />
               </BarChart>
@@ -173,7 +171,7 @@ export default function Reports() {
               <BarChart data={agingData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `KSh ${value}`} />
                 <Tooltip content={<CustomTooltip />} cursor={{fill: '#f3f4f6'}} />
                 <Bar dataKey="amount" fill="#f59e0b" radius={[6, 6, 0, 0]} maxBarSize={50} />
               </BarChart>
