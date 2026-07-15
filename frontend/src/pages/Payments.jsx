@@ -1,41 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../api';
 import { 
   DollarSign, Clock, AlertCircle, Wallet, Search, Filter, 
   Download, Eye, Send, X, CreditCard, Calendar, FileText, 
   ArrowUpRight, Bell, Check
 } from 'lucide-react';
 
-const OVERVIEW_STATS = [
-  { label: 'Total Received', amount: '$124,500', trend: '+12.5%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-  { label: 'Outstanding', amount: '$32,200', trend: '-2.4%', icon: Clock, color: 'text-blue-600', bg: 'bg-blue-100' },
-  { label: 'Overdue', amount: '$8,400', trend: '+4.1%', icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-100' },
-  { label: 'This Month', amount: '$45,800', trend: '+8.2%', icon: Wallet, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-];
-
-const TRANSACTIONS = [
-  { id: 'PAY-1042', invoice: 'INV-2023-081', customer: 'Acme Corp', amount: 4500, method: 'Credit Card', status: 'Completed', date: 'Oct 24, 2023', deposit: false },
-  { id: 'PAY-1043', invoice: 'INV-2023-082', customer: 'Stark Industries', amount: 12000, method: 'Bank Transfer', status: 'Pending', date: 'Oct 25, 2023', deposit: true },
-  { id: 'PAY-1044', invoice: 'INV-2023-083', customer: 'Wayne Enterprises', amount: 2100, method: 'Check', status: 'Failed', date: 'Oct 22, 2023', deposit: false },
-  { id: 'PAY-1045', invoice: 'INV-2023-084', customer: 'LexCorp', amount: 8500, method: 'Credit Card', status: 'Completed', date: 'Oct 26, 2023', deposit: true },
-  { id: 'PAY-1046', invoice: 'INV-2023-085', customer: 'Oscorp', amount: 1200, method: 'Cash', status: 'Overdue', date: 'Oct 15, 2023', deposit: false },
-  { id: 'PAY-1047', invoice: 'INV-2023-086', customer: 'Global Dynamics', amount: 3400, method: 'Credit Card', status: 'Completed', date: 'Oct 27, 2023', deposit: false },
-];
-
-const REMINDERS = [
-  { id: 1, customer: 'Oscorp', invoice: 'INV-2023-085', amount: '$1,200', daysOverdue: 12, type: 'overdue' },
-  { id: 2, customer: 'Initech', invoice: 'INV-2023-079', amount: '$4,500', daysOverdue: 5, type: 'overdue' },
-  { id: 3, customer: 'Umbrella Corp', invoice: 'INV-2023-088', amount: '$2,000', daysOverdue: 0, type: 'upcoming' },
-];
-
-const DEPOSITS = [
-  { id: 'DEP-001', customer: 'Stark Industries', project: 'Arc Reactor Upgrade', amount: '$12,000', status: 'Awaiting', date: 'Oct 28, 2023' },
-  { id: 'DEP-002', customer: 'LexCorp', project: 'R&D Lab Expansion', amount: '$8,500', status: 'Paid', date: 'Oct 26, 2023' },
-];
-
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  // State for real data
+  const [payments, setPayments] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [paymentsRes, invoicesRes] = await Promise.all([
+          api.get('payments/'),
+          api.get('invoices/')
+        ]);
+        setPayments(paymentsRes.data);
+        setInvoices(invoicesRes.data);
+      } catch (err) {
+        console.error("Failed to load data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -52,10 +49,54 @@ export default function Payments() {
     setIsDrawerOpen(true);
   };
 
+  // Derive transactions from real payments
+  const TRANSACTIONS = payments.map(p => ({
+    id: p.transaction_id || `PAY-${p.id}`,
+    invoice: p.invoice_number,
+    customer: p.customer_name,
+    amount: parseFloat(p.amount),
+    method: p.method,
+    status: p.status,
+    date: new Date(p.created_at).toLocaleDateString(),
+    rawDate: new Date(p.created_at)
+  })).sort((a, b) => b.rawDate - a.rawDate);
+
   const filteredTransactions = TRANSACTIONS.filter(t => 
-    t.customer.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    t.invoice.toLowerCase().includes(searchTerm.toLowerCase())
+    (t.customer && t.customer.toLowerCase().includes(searchTerm.toLowerCase())) || 
+    (t.invoice && t.invoice.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Calculate Overview Stats
+  const totalReceived = payments.filter(p => p.status === 'Completed').reduce((sum, p) => sum + parseFloat(p.amount), 0);
+  const outstanding = invoices.filter(i => i.status !== 'Paid').reduce((sum, i) => sum + (parseFloat(i.total) - parseFloat(i.amount_paid)), 0);
+  
+  const OVERVIEW_STATS = [
+    { label: 'Total Received', amount: `$${totalReceived.toLocaleString()}`, trend: '+0%', icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Outstanding', amount: `$${outstanding.toLocaleString()}`, trend: '-0%', icon: Clock, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { label: 'Overdue', amount: '$0', trend: '0%', icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-100' },
+    { label: 'This Month', amount: `$${totalReceived.toLocaleString()}`, trend: '+0%', icon: Wallet, color: 'text-indigo-600', bg: 'bg-indigo-100' },
+  ];
+
+  // Derive Reminders from unpaid invoices
+  const unpaidInvoices = invoices.filter(i => parseFloat(i.total) > parseFloat(i.amount_paid));
+  const REMINDERS = unpaidInvoices.map((inv, idx) => {
+      const dueDate = inv.due_date ? new Date(inv.due_date) : new Date();
+      const today = new Date();
+      const diffTime = today - dueDate;
+      const daysOverdue = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return {
+          id: inv.id,
+          customer: inv.customer_details?.name || 'Unknown',
+          invoice: inv.invoice_number,
+          amount: `$${(parseFloat(inv.total) - parseFloat(inv.amount_paid)).toLocaleString()}`,
+          daysOverdue: daysOverdue > 0 ? daysOverdue : 0,
+          type: daysOverdue > 0 ? 'overdue' : 'upcoming'
+      };
+  });
+
+  const DEPOSITS = []; // Can be derived if deposit logic exists
+
+  if (loading) return <div className="p-8 max-w-7xl mx-auto flex items-center justify-center min-h-[400px]"><span className="w-8 h-8 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></span></div>;
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 text-slate-800">

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../api';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, Legend 
@@ -8,44 +9,7 @@ import {
   FileText, Activity, Award, Lightbulb
 } from 'lucide-react';
 
-const revenueData = [
-  { name: 'Jan', revenue: 4200 },
-  { name: 'Feb', revenue: 3800 },
-  { name: 'Mar', revenue: 5100 },
-  { name: 'Apr', revenue: 4800 },
-  { name: 'May', revenue: 6500 },
-  { name: 'Jun', revenue: 7200 },
-];
-
-const agingData = [
-  { name: 'Current', amount: 15200 },
-  { name: '1-30 Days', amount: 4800 },
-  { name: '31-60 Days', amount: 2100 },
-  { name: '61-90 Days', amount: 800 },
-  { name: '90+ Days', amount: 350 },
-];
-
-const paymentMethodData = [
-  { name: 'Credit Card', value: 45 },
-  { name: 'Bank Transfer', value: 30 },
-  { name: 'PayPal', value: 15 },
-  { name: 'Cash', value: 10 },
-];
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
-
-const topCustomers = [
-  { id: 1, name: 'Acme Corp', revenue: '$14,500', invoices: 28 },
-  { id: 2, name: 'Globex Inc', revenue: '$9,200', invoices: 18 },
-  { id: 3, name: 'Soylent Corp', revenue: '$7,800', invoices: 12 },
-  { id: 4, name: 'Initech', revenue: '$4,300', invoices: 6 },
-];
-
-const insights = [
-  "Revenue increased 22% compared to last month, driven by strong Acme Corp renewals.",
-  "Outstanding invoices over 90 days have decreased by 15% after automated reminders.",
-  "Credit Card remains the most popular payment method (45% of transactions).",
-  "Quote acceptance rate has climbed to 68.5% this quarter, an all-time high."
-];
 
 const CustomTooltip = ({ active, payload, label, prefix = '$' }) => {
   if (active && payload && payload.length) {
@@ -62,6 +26,106 @@ const CustomTooltip = ({ active, payload, label, prefix = '$' }) => {
 };
 
 export default function Reports() {
+  const [loading, setLoading] = useState(true);
+  const [payments, setPayments] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [quotes, setQuotes] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [paymentsRes, invoicesRes, quotesRes] = await Promise.all([
+          api.get('payments/'),
+          api.get('invoices/'),
+          api.get('quotes/')
+        ]);
+        setPayments(paymentsRes.data);
+        setInvoices(invoicesRes.data);
+        setQuotes(quotesRes.data);
+      } catch (err) {
+        console.error("Failed to load data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="p-8 max-w-7xl mx-auto flex items-center justify-center min-h-[400px]"><span className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></span></div>;
+
+  // 1. Overview metrics
+  const totalRevenue = payments.filter(p => p.status === 'Completed').reduce((sum, p) => sum + parseFloat(p.amount), 0);
+  const outstandingAmount = invoices.filter(i => i.status !== 'Paid').reduce((sum, i) => sum + (parseFloat(i.total) - parseFloat(i.amount_paid)), 0);
+  
+  const totalQuotes = quotes.length;
+  const acceptedQuotes = quotes.filter(q => q.status === 'Accepted').length;
+  const rejectedQuotes = quotes.filter(q => q.status === 'Rejected').length;
+  const conversionRate = totalQuotes > 0 ? ((acceptedQuotes / totalQuotes) * 100).toFixed(1) : 0;
+
+  // 2. Revenue Chart (Monthly)
+  const monthlyRevenue = {};
+  payments.filter(p => p.status === 'Completed').forEach(p => {
+    const date = new Date(p.created_at);
+    const month = date.toLocaleString('default', { month: 'short' });
+    monthlyRevenue[month] = (monthlyRevenue[month] || 0) + parseFloat(p.amount);
+  });
+  const revenueData = Object.keys(monthlyRevenue).map(month => ({ name: month, revenue: monthlyRevenue[month] }));
+
+  // 3. Invoice Aging
+  let current = 0, thirty = 0, sixty = 0, ninety = 0, ninetyPlus = 0;
+  invoices.filter(i => i.status !== 'Paid').forEach(inv => {
+    const due = inv.due_date ? new Date(inv.due_date) : new Date();
+    const diffDays = Math.ceil((new Date() - due) / (1000 * 60 * 60 * 24));
+    const amt = parseFloat(inv.total) - parseFloat(inv.amount_paid);
+    if (diffDays <= 0) current += amt;
+    else if (diffDays <= 30) thirty += amt;
+    else if (diffDays <= 60) sixty += amt;
+    else if (diffDays <= 90) ninety += amt;
+    else ninetyPlus += amt;
+  });
+  const agingData = [
+    { name: 'Current', amount: current },
+    { name: '1-30 Days', amount: thirty },
+    { name: '31-60 Days', amount: sixty },
+    { name: '61-90 Days', amount: ninety },
+    { name: '90+ Days', amount: ninetyPlus },
+  ];
+
+  // 4. Payment Methods
+  const methodCounts = {};
+  payments.forEach(p => {
+    const method = p.method || 'Unknown';
+    methodCounts[method] = (methodCounts[method] || 0) + 1;
+  });
+  const paymentMethodData = Object.keys(methodCounts).map(m => ({ name: m, value: methodCounts[m] }));
+
+  // 5. Top Customers
+  const customerRevenue = {};
+  payments.filter(p => p.status === 'Completed').forEach(p => {
+    const customer = p.customer_name || 'Unknown';
+    if (!customerRevenue[customer]) customerRevenue[customer] = { revenue: 0, invoices: new Set() };
+    customerRevenue[customer].revenue += parseFloat(p.amount);
+    customerRevenue[customer].invoices.add(p.invoice);
+  });
+  const topCustomers = Object.keys(customerRevenue)
+    .map((name, idx) => ({
+      id: idx,
+      name,
+      revenue: `$${customerRevenue[name].revenue.toLocaleString()}`,
+      rawRev: customerRevenue[name].revenue,
+      invoices: customerRevenue[name].invoices.size
+    }))
+    .sort((a, b) => b.rawRev - a.rawRev)
+    .slice(0, 4);
+
+  // 6. Insights
+  const insights = [
+    `You have generated $${totalRevenue.toLocaleString()} in total revenue.`,
+    `There is $${outstandingAmount.toLocaleString()} currently outstanding across unpaid invoices.`,
+    `Your quote conversion rate is ${conversionRate}% (${acceptedQuotes} accepted out of ${totalQuotes}).`,
+    topCustomers.length > 0 ? `${topCustomers[0].name} is your top customer, generating ${topCustomers[0].revenue}.` : "No completed payments yet."
+  ];
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 bg-gray-50/50 min-h-screen">
       {/* Header */}
@@ -77,12 +141,11 @@ export default function Reports() {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard title="Revenue" value="$31,600" icon={<DollarSign size={20} />} trend="+22%" positive={true} />
-        <StatCard title="Expenses" value="$14,200" icon={<CreditCard size={20} />} trend="-4%" positive={true} />
-        <StatCard title="Profit" value="$17,400" icon={<TrendingUp size={20} />} trend="+31%" positive={true} />
-        <StatCard title="Outstanding" value="$8,050" icon={<FileText size={20} />} trend="-12%" positive={true} />
-        <StatCard title="Conversion Rate" value="68.5%" icon={<Activity size={20} />} trend="+5%" positive={true} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Revenue" value={`$${totalRevenue.toLocaleString()}`} icon={<DollarSign size={20} />} trend="+0%" positive={true} />
+        <StatCard title="Profit" value={`$${totalRevenue.toLocaleString()}`} icon={<TrendingUp size={20} />} trend="+0%" positive={true} />
+        <StatCard title="Outstanding" value={`$${outstandingAmount.toLocaleString()}`} icon={<FileText size={20} />} trend="-0%" positive={true} />
+        <StatCard title="Conversion Rate" value={`${conversionRate}%`} icon={<Activity size={20} />} trend="+0%" positive={true} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -179,19 +242,19 @@ export default function Reports() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-gray-50">
                   <span className="text-gray-500 font-medium">Created</span>
-                  <span className="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-full text-sm">168</span>
+                  <span className="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-full text-sm">{totalQuotes}</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-gray-50">
                   <span className="text-gray-500 font-medium">Accepted</span>
-                  <span className="font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full text-sm">115</span>
+                  <span className="font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full text-sm">{acceptedQuotes}</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-gray-50">
                   <span className="text-gray-500 font-medium">Rejected</span>
-                  <span className="font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full text-sm">34</span>
+                  <span className="font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full text-sm">{rejectedQuotes}</span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
                   <span className="text-gray-900 font-bold">Conversion Rate</span>
-                  <span className="font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full text-sm">68.5%</span>
+                  <span className="font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full text-sm">{conversionRate}%</span>
                 </div>
               </div>
             </div>
