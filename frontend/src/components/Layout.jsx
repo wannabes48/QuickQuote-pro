@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
-import { LayoutDashboard, Users, FileText, Settings, LogOut, Receipt, ArrowUpRight } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Settings, LogOut, Receipt, ArrowUpRight, CreditCard, PieChart } from 'lucide-react';
 import { Announcement, AnnouncementTag, AnnouncementTitle } from './ui/announcement';
 import { AppLogo, AppLogoText } from '@/components/ui/logo';
 import { SessionNavBar } from '@/components/ui/sidebar';
@@ -23,6 +23,8 @@ export default function Layout() {
         { name: 'Customers', path: '/customers', icon: Users },
         { name: 'Quotes', path: '/quotes', icon: FileText },
         { name: 'Invoices', path: '/invoices', icon: Receipt },
+        { name: 'Payments', path: '/payments', icon: CreditCard },
+        { name: 'Reports', path: '/reports', icon: PieChart },
         { name: 'Settings', path: '/settings', icon: Settings },
     ];
 

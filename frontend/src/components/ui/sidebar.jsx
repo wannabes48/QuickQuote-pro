@@ -9,7 +9,9 @@ import {
   Settings,
   LogOut,
   ChevronsUpDown,
-  UserCircle
+  UserCircle,
+  CreditCard,
+  PieChart
 } from "lucide-react";
 import { AppLogo, AppLogoText } from "@/components/ui/logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -77,6 +79,8 @@ export function SessionNavBar() {
     { name: 'Customers', path: '/customers', icon: Users },
     { name: 'Quotes', path: '/quotes', icon: FileText },
     { name: 'Invoices', path: '/invoices', icon: Receipt },
+    { name: 'Payments', path: '/payments', icon: CreditCard },
+    { name: 'Reports', path: '/reports', icon: PieChart },
   ];
 
   return (

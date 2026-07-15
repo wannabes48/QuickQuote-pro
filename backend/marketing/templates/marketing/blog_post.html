@@ -1,0 +1,50 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{{ post.title }} | QuickQuote Pro Blog{% endblock %}
+{% block meta_description %}{{ post.meta_description }}{% endblock %}
+
+{% block content %}
+<div class="relative bg-zinc-950 min-h-screen pt-24 pb-32">
+    <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <a href="{% url 'blog_index' %}" class="text-blue-400 hover:text-blue-300 mb-8 inline-flex items-center text-sm font-medium transition-colors">
+            ← Back to Blog
+        </a>
+
+        <article class="prose prose-invert prose-lg max-w-none">
+            <header class="mb-12 border-b border-white/10 pb-8">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">{{ post.title }}</h1>
+                <div class="flex items-center text-white/50 text-sm">
+                    <span>{{ post.author }}</span>
+                    <span class="mx-3">•</span>
+                    <time datetime="{{ post.date }}">{{ post.date }}</time>
+                </div>
+            </header>
+
+            <div class="text-white/80 leading-relaxed space-y-6">
+                {% include post.template %}
+            </div>
+            
+        </article>
+
+        <div class="mt-20 pt-10 border-t border-white/10 text-center">
+            <h3 class="text-2xl font-bold text-white mb-4">Ready to put this into practice?</h3>
+            <p class="text-white/60 mb-8">Create your first professional quotation in seconds using QuickQuote Pro.</p>
+            <a href="/register" class="inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-lg">
+                Get Started for Free
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* Add some basic prose styles for the included html content since we might not have tailwind typography plugin */
+.prose h2 { color: white; font-size: 1.875rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1.25rem; }
+.prose h3 { color: white; font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; }
+.prose p { margin-bottom: 1.25rem; }
+.prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+.prose li { margin-bottom: 0.5rem; }
+.prose strong { color: white; }
+</style>
+{% endblock %}

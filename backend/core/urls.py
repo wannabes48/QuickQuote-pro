@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
-from marketing.sitemaps import StaticViewSitemap, IndustrySitemap
+from marketing.sitemaps import StaticViewSitemap, IndustrySitemap, BlogSitemap
 from core.views import keep_alive
 
 sitemaps = {
     'static': StaticViewSitemap,
     'industry': IndustrySitemap,
+    'blog': BlogSitemap,
 }
 
 urlpatterns = [

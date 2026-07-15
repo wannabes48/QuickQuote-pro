@@ -1,0 +1,32 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}QuickQuote Pro Blog & Resources{% endblock %}
+{% block meta_description %}Learn how to run your contracting business better with our expert tips on writing quotes, estimates, and pricing strategies.{% endblock %}
+
+{% block content %}
+<div class="relative bg-zinc-950 min-h-screen pt-24 pb-32">
+    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Blog & Resources</h1>
+            <p class="text-xl text-white/60 max-w-2xl mx-auto">Expert advice, templates, and strategies to help contractors and service businesses win more jobs.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {% for post in posts %}
+            <a href="{% url 'blog_post' post.slug %}" class="block group">
+                <article class="bg-zinc-900 border border-white/10 rounded-2xl p-8 h-full transition duration-300 hover:border-blue-500/50 hover:bg-zinc-800/80">
+                    <div class="text-sm text-blue-400 mb-3">{{ post.date }}</div>
+                    <h2 class="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">{{ post.title }}</h2>
+                    <p class="text-white/70 leading-relaxed mb-6">{{ post.excerpt }}</p>
+                    <div class="text-white/50 text-sm font-medium flex items-center">
+                        Read Article <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                </article>
+            </a>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -12,6 +12,8 @@ import Quotes from './pages/Quotes';
 import QuoteBuilder from './pages/QuoteBuilder';
 import PublicQuote from './pages/PublicQuote';
 import Invoices from './pages/Invoices';
+import Payments from './pages/Payments';
+import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Pricing from './pages/Pricing';
 import Features from './pages/Features';
@@ -53,6 +55,8 @@ function App() {
             <Route path="/quotes" element={<Quotes />} />
             <Route path="/quotes/new" element={<QuoteBuilder />} />
             <Route path="/invoices" element={<Invoices />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
           </Route>
