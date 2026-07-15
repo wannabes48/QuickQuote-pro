@@ -270,23 +270,27 @@ function Settings() {
                             <Card className="border-border bg-primary/5 border-primary/20">
                                 <CardHeader>
                                     <CardTitle>Current Plan</CardTitle>
-                                    <CardDescription>You are currently on the <strong className="text-primary">Free Tier</strong>.</CardDescription>
+                                    <CardDescription>You are currently on the <strong className="text-primary">{user?.subscription_tier || 'Free'} Tier</strong>.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex items-center justify-between">
                                         <div className="space-y-1">
                                             <p className="text-sm font-medium">Quotes Usage</p>
-                                            <p className="text-2xl font-bold">5 / 5</p>
+                                            <p className="text-2xl font-bold">{(!user?.subscription_tier || user?.subscription_tier === 'Free') ? '5 / 5' : 'Unlimited'}</p>
                                         </div>
                                         <div className="text-right space-y-1">
                                             <p className="text-sm font-medium">Next Billing Date</p>
-                                            <p className="text-muted-foreground">N/A</p>
+                                            <p className="text-muted-foreground">{user?.subscription_end_date ? new Date(user.subscription_end_date).toLocaleDateString() : 'N/A'}</p>
                                         </div>
                                     </div>
                                     <div className="w-full bg-gray-200 h-2 mt-4 rounded-full overflow-hidden">
-                                        <div className="bg-primary h-full w-full"></div>
+                                        <div className={`h-full w-full ${(!user?.subscription_tier || user?.subscription_tier === 'Free') ? 'bg-destructive' : 'bg-primary'}`}></div>
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-2">You have reached your free tier limit. Upgrade to continue creating quotes.</p>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                        {(!user?.subscription_tier || user?.subscription_tier === 'Free')
+                                            ? 'You have reached your free tier limit. Upgrade to continue creating quotes.'
+                                            : 'Your subscription is active and in good standing.'}
+                                    </p>
                                 </CardContent>
                             </Card>
 
