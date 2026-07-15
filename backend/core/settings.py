@@ -183,6 +183,13 @@ REST_FRAMEWORK = {
     )
 }
 
+# PayHero Payment Gateway
+PAYHERO_USERNAME = os.environ.get('PAYHERO_USERNAME', '')
+PAYHERO_PASSWORD = os.environ.get('PAYHERO_PASSWORD', '')
+PAYHERO_CHANNEL_ID = os.environ.get('PAYHERO_CHANNEL_ID', '9643')
+PAYHERO_API_URL = os.environ.get('PAYHERO_API_URL', 'https://backend.payhero.co.ke/api/v2/payments')
+PAYHERO_LIPWA_ID = os.environ.get('PAYHERO_LIPWA_ID', '10209')
+
 from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),

@@ -18,6 +18,7 @@ idna==3.18
 MarkupSafe==3.0.3
 packaging==26.2
 pillow==12.2.0
+qrcode[pil]==8.0
 psycopg2-binary==2.9.12
 pycparser==3.0
 PyJWT==2.13.0

@@ -1,8 +1,15 @@
 import io
+import qrcode
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.units import mm
+from reportlab.platypus import (
+    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer,
+    Image as RLImage, HRFlowable,
+)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from payments.services import generate_lipwa_payment_link
+
 
 def generate_invoice_pdf(invoice):
     buffer = io.BytesIO()
@@ -66,6 +73,44 @@ def generate_invoice_pdf(invoice):
         ('TEXTCOLOR', (2,4), (2,4), colors.HexColor('#EF4444')), # Red for amount due
     ]))
     elements.append(tt)
+
+    # QR Code payment section (only if there's an amount due)
+    if amount_due > 0:
+        elements.append(Spacer(1, 20))
+        elements.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#E5E7EB')))
+        elements.append(Spacer(1, 12))
+
+        qr_title = ParagraphStyle(
+            'QRTitle', parent=styles['Heading2'], fontSize=14,
+            textColor=colors.HexColor('#1F2937'), alignment=1,
+        )
+        elements.append(Paragraph('Scan to Pay', qr_title))
+        elements.append(Spacer(1, 8))
+
+        try:
+            payment_url = generate_lipwa_payment_link(invoice)
+            qr = qrcode.QRCode(version=1, box_size=10, border=2)
+            qr.add_data(payment_url)
+            qr.make(fit=True)
+            qr_img = qr.make_image(fill_color='black', back_color='white')
+            qr_buffer = io.BytesIO()
+            qr_img.save(qr_buffer, format='PNG')
+            qr_buffer.seek(0)
+
+            qr_rl_image = RLImage(qr_buffer, width=40 * mm, height=40 * mm, hAlign='CENTER')
+            elements.append(qr_rl_image)
+            elements.append(Spacer(1, 8))
+
+            qr_caption = ParagraphStyle(
+                'QRCaption', parent=normal_style, fontSize=9,
+                textColor=colors.HexColor('#6B7280'), alignment=1,
+            )
+            elements.append(Paragraph(
+                'Scan with M-Pesa app or any banking app to pay', qr_caption
+            ))
+        except Exception:
+            # If QR generation fails, skip it silently
+            pass
     
     doc.build(elements)
     buffer.seek(0)

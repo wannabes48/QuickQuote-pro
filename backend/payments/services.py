@@ -1,43 +1,80 @@
-import requests
+"""
+Payment services — PayHero integration for M-Pesa STK Push and Lipwa payment links.
+
+Replaces the broken direct Safaricom Daraja API integration.
+PayHero wraps M-Pesa and provides a reliable, unified API.
+"""
+import os
 import base64
-from datetime import datetime
-from django.conf import settings
+import requests
+from urllib.parse import urlencode
 
-def get_mpesa_access_token():
-    consumer_key = getattr(settings, 'MPESA_CONSUMER_KEY', 'sandbox_key')
-    consumer_secret = getattr(settings, 'MPESA_CONSUMER_SECRET', 'sandbox_secret')
-    api_url = getattr(settings, 'MPESA_AUTH_URL', 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials')
-    
-    r = requests.get(api_url, auth=(consumer_key, consumer_secret))
-    if r.status_code == 200:
-        return r.json().get('access_token')
-    raise Exception('Failed to get M-Pesa access token')
 
-def initiate_stk_push(payment):
-    access_token = get_mpesa_access_token()
-    api_url = getattr(settings, 'MPESA_STK_URL', 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest')
-    headers = {"Authorization": f"Bearer {access_token}"}
-    
-    business_shortcode = getattr(settings, 'MPESA_SHORTCODE', '174379')
-    passkey = getattr(settings, 'MPESA_PASSKEY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919')
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    password = base64.b64encode((business_shortcode + passkey + timestamp).encode()).decode('utf-8')
-    
-    callback_url = getattr(settings, 'MPESA_CALLBACK_URL', 'https://yourdomain.com/api/payments/callback/')
-    
-    payload = {
-        "BusinessShortCode": business_shortcode,
-        "Password": password,
-        "Timestamp": timestamp,
-        "TransactionType": "CustomerPayBillOnline",
-        "Amount": int(payment.amount),
-        "PartyA": payment.phone_number,
-        "PartyB": business_shortcode,
-        "PhoneNumber": payment.phone_number,
-        "CallBackURL": callback_url,
-        "AccountReference": payment.invoice.invoice_number,
-        "TransactionDesc": f"Payment for Invoice {payment.invoice.invoice_number}"
+def _get_payhero_headers():
+    """Build PayHero Basic Auth headers from environment credentials."""
+    username = os.environ.get('PAYHERO_USERNAME', '')
+    password = os.environ.get('PAYHERO_PASSWORD', '')
+    credentials = base64.b64encode(f"{username}:{password}".encode()).decode()
+    return {
+        "Authorization": f"Basic {credentials}",
+        "Content-Type": "application/json",
     }
-    
-    response = requests.post(api_url, json=payload, headers=headers)
-    return response.json()
+
+
+def initiate_payhero_stk(phone_number, amount, reference):
+    """
+    Initiate an M-Pesa STK Push via PayHero API.
+
+    Sends a payment prompt to the customer's Safaricom phone.
+    The customer enters their M-Pesa PIN to complete the payment.
+    """
+    api_url = os.environ.get(
+        'PAYHERO_API_URL', 'https://backend.payhero.co.ke/api/v2/payments'
+    )
+    channel_id = int(os.environ.get('PAYHERO_CHANNEL_ID', '9643'))
+    callback_url = 'https://quickquote-pro.onrender.com/api/payments/payhero-callback/'
+
+    payload = {
+        "amount": int(amount),
+        "phone_number": phone_number,
+        "channel_id": channel_id,
+        "provider": "m-pesa",
+        "external_reference": reference,
+        "callback_url": callback_url,
+    }
+
+    try:
+        response = requests.post(
+            api_url, json=payload, headers=_get_payhero_headers()
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        error_msg = str(e)
+        if e.response is not None:
+            error_msg += f" - Response: {e.response.text}"
+        raise Exception(f"PayHero STK Push failed: {error_msg}")
+
+
+def generate_lipwa_payment_link(invoice):
+    """
+    Generate a PayHero Lipwa payment link for an invoice.
+
+    Returns a full URL that the customer can open to pay via
+    M-Pesa, bank transfer, or other supported methods.
+    """
+    lipwa_id = os.environ.get('PAYHERO_LIPWA_ID', '10209')
+    channel_id = os.environ.get('PAYHERO_CHANNEL_ID', '9643')
+    amount_due = float(invoice.total) - float(invoice.amount_paid)
+
+    params = {
+        'amount': int(amount_due),
+        'phone': invoice.customer.phone or '',
+        'name': invoice.customer.name,
+        'channel_id': channel_id,
+        'reference': invoice.invoice_number,
+        'success_url': 'https://www.quickquotepro.online/payment-success',
+        'failed_url': 'https://www.quickquotepro.online/invoices',
+    }
+
+    return f"https://lipwa.link/{lipwa_id}?{urlencode(params)}"

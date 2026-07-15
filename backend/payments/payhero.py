@@ -9,12 +9,7 @@ def initiate_payhero_stk_push(phone_number, amount, reference):
     channel_id = getattr(settings, 'PAYHERO_CHANNEL_ID', os.environ.get('PAYHERO_CHANNEL_ID', '123'))
     api_url = getattr(settings, 'PAYHERO_API_URL', os.environ.get('PAYHERO_API_URL', 'https://backend.payhero.co.ke/api/v2/payments'))
     
-    # Callback URL should be your production URL
-    # For now, we will construct a default or rely on the environment
-    base_url = getattr(settings, 'FRONTEND_URL', 'https://backend.quickquotepro.online')
-    if base_url.endswith('/'):
-        base_url = base_url[:-1]
-    callback_url = f"{base_url}/api/users/subscription/callback/"
+    callback_url = "https://quickquote-pro.onrender.com/api/users/subscription/callback/"
     
     # Create Basic Auth header
     credentials = f"{username}:{password}"
