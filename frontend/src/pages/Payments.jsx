@@ -403,29 +403,47 @@ export default function Payments() {
               </div>
 
               {/* Payment Timeline */}
-              <div>
-                <h4 className="text-xs font-bold text-slate-400 mb-5 uppercase tracking-wider">Payment Timeline</h4>
-                <div className="relative pl-4 space-y-6">
-                  <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-100" />
+              {(() => {
+                const relatedInvoice = invoices.find(i => i.invoice_number === selectedTransaction.invoice);
+                const steps = [];
+                if (relatedInvoice) {
+                  steps.push({ label: 'Invoice Created', date: new Date(relatedInvoice.created_at || new Date()).toLocaleString(), done: true });
                   
-                  {[
-                    { label: 'Invoice Created', date: 'Oct 20, 2023, 10:00 AM', done: true },
-                    { label: 'Quote Approved', date: 'Oct 21, 2023, 02:30 PM', done: true },
-                    { label: 'Deposit Paid', date: 'Oct 21, 2023, 02:45 PM', done: true },
-                    { label: 'Final Payment Received', date: 'Oct 24, 2023, 11:15 AM', done: selectedTransaction.status === 'Completed' },
-                  ].map((step, idx) => (
-                    <div key={idx} className="relative flex gap-5">
-                      <div className={`absolute -left-[24px] w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${step.done ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm' : 'border-slate-200 bg-white'}`}>
-                        {step.done && <Check className="w-3.5 h-3.5" />}
-                      </div>
-                      <div className="pt-0.5">
-                        <p className={`text-sm font-bold ${step.done ? 'text-slate-900' : 'text-slate-400'}`}>{step.label}</p>
-                        <p className="text-xs text-slate-500 mt-1">{step.date}</p>
-                      </div>
+                  if (parseFloat(relatedInvoice.amount_paid) > 0) {
+                     steps.push({ label: 'Payment(s) Received', date: `Total Paid: KSh ${parseFloat(relatedInvoice.amount_paid).toLocaleString()}`, done: true });
+                  }
+
+                  if (relatedInvoice.status === 'Paid') {
+                     steps.push({ label: 'Fully Paid', date: 'Completed', done: true });
+                  } else {
+                     steps.push({ label: 'Payment Pending', date: `Balance: KSh ${(parseFloat(relatedInvoice.total) - parseFloat(relatedInvoice.amount_paid)).toLocaleString()}`, done: false });
+                  }
+                } else {
+                  steps.push({ label: 'Payment Initiated', date: selectedTransaction.date, done: true });
+                  steps.push({ label: 'Payment Status', date: selectedTransaction.status, done: selectedTransaction.status === 'Completed' });
+                }
+
+                return (
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-400 mb-5 uppercase tracking-wider">Payment Timeline</h4>
+                    <div className="relative pl-4 space-y-6">
+                      <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-100" />
+                      
+                      {steps.map((step, idx) => (
+                        <div key={idx} className="relative flex gap-5">
+                          <div className={`absolute -left-[24px] w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${step.done ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm' : 'border-slate-200 bg-white'}`}>
+                            {step.done && <Check className="w-3.5 h-3.5" />}
+                          </div>
+                          <div className="pt-0.5">
+                            <p className={`text-sm font-bold ${step.done ? 'text-slate-900' : 'text-slate-400'}`}>{step.label}</p>
+                            <p className="text-xs text-slate-500 mt-1">{step.date}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Drawer Footer */}
