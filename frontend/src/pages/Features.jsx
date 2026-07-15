@@ -130,7 +130,7 @@ export default function Features() {
                 <div className="relative aspect-square md:aspect-[4/3] bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex items-center justify-center overflow-hidden shadow-2xl">
                     {/* Placeholder for feature screenshot */}
                     <div className="w-full h-full border-2 border-dashed border-white/20 rounded-xl flex items-center justify-center text-white/40 font-medium">
-                       {<img src={feature.image} alt={feature.title} className="w-full h-full object-cover" />}
+                       {<img src={feature.image} alt={feature.title} width={800} height={600} className="w-full h-full object-cover" />}
                     </div>
                 </div>
               </div>

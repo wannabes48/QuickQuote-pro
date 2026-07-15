@@ -1,27 +1,29 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Customers from './pages/Customers';
-import Quotes from './pages/Quotes';
-import QuoteBuilder from './pages/QuoteBuilder';
-import PublicQuote from './pages/PublicQuote';
-import Invoices from './pages/Invoices';
-import Payments from './pages/Payments';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-import Pricing from './pages/Pricing';
-import Features from './pages/Features';
-import About from './pages/About';
-import FAQ from './pages/FAQ';
-import ResetPassword from './pages/ResetPassword';
-import IndustryLandingPage from './pages/IndustryLandingPage';
-import PaymentSuccess from './pages/PaymentSuccess';
+
+// Lazy load pages for better performance (code splitting)
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Customers = React.lazy(() => import('./pages/Customers'));
+const Quotes = React.lazy(() => import('./pages/Quotes'));
+const QuoteBuilder = React.lazy(() => import('./pages/QuoteBuilder'));
+const PublicQuote = React.lazy(() => import('./pages/PublicQuote'));
+const Invoices = React.lazy(() => import('./pages/Invoices'));
+const Payments = React.lazy(() => import('./pages/Payments'));
+const Reports = React.lazy(() => import('./pages/Reports'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Pricing = React.lazy(() => import('./pages/Pricing'));
+const Features = React.lazy(() => import('./pages/Features'));
+const About = React.lazy(() => import('./pages/About'));
+const FAQ = React.lazy(() => import('./pages/FAQ'));
+const ResetPassword = React.lazy(() => import('./pages/ResetPassword'));
+const IndustryLandingPage = React.lazy(() => import('./pages/IndustryLandingPage'));
+const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = React.useContext(AuthContext);
@@ -34,6 +36,7 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <BrowserRouter>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white"><span className="w-8 h-8 border-4 border-slate-600 border-t-blue-500 rounded-full animate-spin"></span></div>}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -61,6 +64,7 @@ function App() {
             <Route path="/payment-success" element={<PaymentSuccess />} />
           </Route>
         </Routes>
+        </Suspense>
       </BrowserRouter>
       </ToastProvider>
     </AuthProvider>

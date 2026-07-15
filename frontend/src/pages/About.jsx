@@ -104,7 +104,13 @@ export default function About() {
               </div>
             </div>
             <div className="relative aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-              <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Team collaborating" className="object-cover w-full h-full opacity-80" />
+              <img 
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                alt="Team collaborating" 
+                width={1000}
+                height={600}
+                className="object-cover w-full h-full opacity-80" 
+              />
             </div>
           </div>
         </section>
@@ -128,7 +134,7 @@ export default function About() {
                 key={member.name} 
                 className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6 text-center hover:bg-white/10 transition-colors"
               >
-                <img src={member.image} alt={member.name} className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white/10 object-cover" />
+                <img src={member.image} alt={member.name} width={128} height={128} className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white/10 object-cover" />
                 <h3 className="text-xl font-bold">{member.name}</h3>
                 <p className="text-blue-400 font-medium mt-1">{member.role}</p>
               </motion.div>

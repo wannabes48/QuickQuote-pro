@@ -170,7 +170,7 @@ export default function PublicQuote() {
                             {quote.signature_data && (
                                 <div className="mt-6 border border-gray-200 rounded-xl p-4 bg-white inline-block">
                                     <p className="text-xs text-gray-500 font-medium mb-2 text-left uppercase tracking-wider">Digital Signature</p>
-                                    <img src={quote.signature_data} alt="Client Signature" className="h-24 mx-auto" />
+                                    <img src={quote.signature_data} alt="Client Signature" width={200} height={96} className="h-24 mx-auto" />
                                 </div>
                             )}
                         </div>

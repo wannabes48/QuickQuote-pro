@@ -6,6 +6,8 @@ export function AppLogo({ className, ...props }) {
     <img 
       src="/logo.png" 
       alt="QuickQuote Pro" 
+      width={160}
+      height={40}
       className={cn("object-contain", className)} 
       {...props} 
     />
